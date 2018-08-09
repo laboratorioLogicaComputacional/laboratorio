@@ -1,0 +1,132 @@
+#+LATEX_CLASS: article
+#+LANGUAGE: es
+#+LATEX_HEADER: \usepackage[AUTO]{babel}
+#+LATEX_HEADER: \usepackage{fancyvrb}
+#+TITLE: Sesión de laboratorio 01
+
+* Introducción
+** ¿Qué es Haskell?
+Haskell es un lenguaje de programación multi-propósito puramente funcional
+con semántica no estricta y tipado fuerte.
+Haskell cuenta con inferencia de tipos, por lo cual no es necesario especificar
+el tipo de las variables o las funciones.
+La mayoría de los lenguajes son imperativos, en estos se especifica los
+pasos que debe realizar el código. Los lenguajes funcionales trabajan de forma diferente.
+En lugar de realizar acciones en secuencia, evalua expresiones.
+*** Ejemplo Java
+#+begin_src java
+int pot(int n, int m){
+   int res = 1;
+   for(int i = 0; i < m; i++){
+      res *= n;
+   }
+}
+#+end_src
+*** Ejemplo Haskell
+#+begin_src haskell
+pot n 0 = 1
+pot n m = n * (pot n (m-1)) 
+#+end_src
+** Instalación
+En la página de https://www.haskell.org/downloads podrán encontrar los 
+paquetes de Haskell. Existen dos versiones Haskell Platform que incluye 
+el manejador de paquetes, el compilador GHC y otras herramientas.
+O también pueden descargar el compilador GHC que tiene el interpretre ghci.
+** Tipos básicos
+Haskell tiene definido los siguientes tipos:
+   - Bool
+     * True
+     * False
+     * &&
+     * ||
+     * not
+   - Char
+     * ++
+   - Int
+   - Integers
+   - Float
+   - Double
+     * +
+     * -
+     * /
+     * *
+   - Listas
+     * !!
+   - Tuplas
+     - fst
+     - snd
+
+Para conocer el tipo de una expresión  en haskell solo se necesita hacer:
+#+begin_src haskell
+> :t 5
+> :t "Hola mundo"
+> :t False
+> :t head
+#+end_src
+** Variables de tipo
+Pero ¿qué es esa a? Los tipos que acabamos de ver empiezan con letra mayúscula.
+La a es una variable de tipo, podemos pensarla como los genericos de otros lenguajes.
+Estas variables de tipo son más poderosas que los genericos, ya que nos 
+permiten escribir funciones muy generales mientras no dependan del comportamiento
+especifico de los tipos. Estas funciones son llamadas polimórficas.
+** Clases de tipo
+Las clases de tipos son una especie de interfaz que define algún tipo de
+comportamiento. Si un tipo es un miembro de una clase de tipos, significa 
+que ese tipo soporta e implementa el comportamiento que define la clase de tipos.
+Los podriamos ver como interfaces de Java.
+#+begin_src haskell
+> :t (==)
+(==) :: Eq a => a -> a -> Bool
+#+end_src
+Cualquier cosa antes del símbolo => es una restricción de clase.
+Se lee: La función de igualdad toma dos parámetros que son del mismo tipo
+y devuelve un Bool. El tipo de estos dos parámetros debe ser miembro de la
+clase Eq.
+*** Básicas 
+    - Eq
+    - Ord
+    - Show
+    - Read
+    - Enum
+** Más allá
+Esta es una introducción a haskell muy muy básica.
+Para seguir aprendiendo hay bastante material 
+en https://www.haskell.org/documentation
+
+* Lógica
+** Sintaxis
+Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
+\[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
+\[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
+\[<VariableProposicional> ::= v<Indice>\]
+\[ <Indice> ::= [i | i \in \mathbb{N}]\]
+
+** Definición en Haskell
+#+begin_src haskell
+-- Tipo de dato indice
+type Indice = Int
+
+-- Tipo de dato fórmula
+data PL = Top | Bot 
+              | Var Indice | Oneg PL 
+              | Oand PL PL | Oor PL PL 
+              | Oimp PL PL deriving (Eq, Show)
+#+end_src
+
+** Funciones
+*** Número de operadores
+#+begin_src haskell
+numOp :: PL -> Int
+#+end_src
+*** Elimina implicaciones
+#+begin_src haskell
+quitaImp :: PL -> PL
+#+end_src
+*** Número de operadores binarios
+#+begin_src haskell
+numObin :: PL -> PL
+#+end_src
+*** Forma Normal Negativa
+#+begin_src haskell
+toNNF :: PL -> PL
+#+end_src 

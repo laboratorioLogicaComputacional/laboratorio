@@ -1,0 +1,193 @@
+% Created 2018-08-09 Thu 13:17
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Mauricio Esquivel Reyes}
+\date{\today}
+\title{Sesión de laboratorio 01}
+\hypersetup{
+ pdfauthor={Mauricio Esquivel Reyes},
+ pdftitle={Sesión de laboratorio 01},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 24.5.1 (Org mode 9.1.13)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{Introducción}
+\label{sec:orgcaf1f15}
+\subsection{¿Qué es Haskell?}
+\label{sec:org0df14ea}
+Haskell es un lenguaje de programación multi-propósito puramente funcional
+con semántica no estricta y tipado fuerte.
+Haskell cuenta con inferencia de tipos, por lo cual no es necesario especificar
+el tipo de las variables o las funciones.
+La mayoría de los lenguajes son imperativos, en estos se especifica los
+pasos que debe realizar el código. Los lenguajes funcionales trabajan de forma diferente.
+En lugar de realizar acciones en secuencia, evalua expresiones.
+\subsubsection{Ejemplo Java}
+\label{sec:org92df6a3}
+\begin{verbatim}
+int pot(int n, int m){
+   int res = 1;
+   for(int i = 0; i < m; i++){
+      res *= n;
+   }
+}
+\end{verbatim}
+\subsubsection{Ejemplo Haskell}
+\label{sec:orgae9227c}
+\begin{verbatim}
+pot n 0 = 1
+pot n m = n * (pot n (m-1)) 
+\end{verbatim}
+\subsection{Instalación}
+\label{sec:org65c9787}
+En la página de \url{https://www.haskell.org/downloads} podrán encontrar los 
+paquetes de Haskell. Existen dos versiones Haskell Platform que incluye 
+el manejador de paquetes, el compilador GHC y otras herramientas.
+O también pueden descargar el compilador GHC que tiene el interpretre ghci.
+\subsection{Tipos básicos}
+\label{sec:orgc0f8ae5}
+Haskell tiene definido los siguientes tipos:
+\begin{itemize}
+\item Bool
+\begin{itemize}
+\item True
+\item False
+\item \&\&
+\item ||
+\item not
+\end{itemize}
+\item Char
+\begin{itemize}
+\item ++
+\end{itemize}
+\item Int
+\item Integers
+\item Float
+\item Double
+\begin{itemize}
+\item +
+\item -
+\item /
+\item *
+\end{itemize}
+\item Listas
+\begin{itemize}
+\item !!
+\end{itemize}
+\item Tuplas
+\begin{itemize}
+\item fst
+\item snd
+\end{itemize}
+\end{itemize}
+
+Para conocer el tipo de una expresión  en haskell solo se necesita hacer:
+\begin{verbatim}
+> :t 5
+> :t "Hola mundo"
+> :t False
+> :t head
+\end{verbatim}
+\subsection{Variables de tipo}
+\label{sec:orga033e84}
+Pero ¿qué es esa a? Los tipos que acabamos de ver empiezan con letra mayúscula.
+La a es una variable de tipo, podemos pensarla como los genericos de otros lenguajes.
+Estas variables de tipo son más poderosas que los genericos, ya que nos 
+permiten escribir funciones muy generales mientras no dependan del comportamiento
+especifico de los tipos. Estas funciones son llamadas polimórficas.
+\subsection{Clases de tipo}
+\label{sec:orgf1fb5f8}
+Las clases de tipos son una especie de interfaz que define algún tipo de
+comportamiento. Si un tipo es un miembro de una clase de tipos, significa 
+que ese tipo soporta e implementa el comportamiento que define la clase de tipos.
+Los podriamos ver como interfaces de Java.
+\begin{verbatim}
+> :t (==)
+(==) :: Eq a => a -> a -> Bool
+\end{verbatim}
+Cualquier cosa antes del símbolo => es una restricción de clase.
+Se lee: La función de igualdad toma dos parámetros que son del mismo tipo
+y devuelve un Bool. El tipo de estos dos parámetros debe ser miembro de la
+clase Eq.
+\subsubsection{Básicas}
+\label{sec:org5833fd8}
+\begin{itemize}
+\item Eq
+\item Ord
+\item Show
+\item Read
+\item Enum
+\end{itemize}
+\subsection{Más allá}
+\label{sec:org00f6bf7}
+Esta es una introducción a haskell muy muy básica.
+Para seguir aprendiendo hay bastante material 
+en \url{https://www.haskell.org/documentation}
+
+\section{Lógica}
+\label{sec:orgd37d7bd}
+\subsection{Sintaxis}
+\label{sec:org317a30e}
+Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
+\[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
+\[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
+\[<VariableProposicional> ::= v<Indice>\]
+\[ <Indice> ::= [i | i \in \mathbb{N}]\]
+
+\subsection{Definición en Haskell}
+\label{sec:org3c70cbb}
+\begin{verbatim}
+-- Tipo de dato indice
+type Indice = Int
+
+-- Tipo de dato fórmula
+data PL = Top | Bot 
+              | Var Indice | Oneg PL 
+              | Oand PL PL | Oor PL PL 
+              | Oimp PL PL deriving (Eq, Show)
+\end{verbatim}
+
+\subsection{Funciones}
+\label{sec:org762f21b}
+\subsubsection{Número de operadores}
+\label{sec:org4e643d4}
+\begin{verbatim}
+numOp :: PL -> Int
+\end{verbatim}
+\subsubsection{Elimina implicaciones}
+\label{sec:org758fa73}
+\begin{verbatim}
+quitaImp :: PL -> PL
+\end{verbatim}
+\subsubsection{Número de operadores binarios}
+\label{sec:org0126bc1}
+\begin{verbatim}
+numObin :: PL -> PL
+\end{verbatim}
+\subsubsection{Forma Normal Negativa}
+\label{sec:org24c0893}
+\begin{verbatim}
+toNNF :: PL -> PL
+\end{verbatim}
+\end{document}
