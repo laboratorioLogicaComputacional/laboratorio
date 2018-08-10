@@ -1,4 +1,4 @@
-% Created 2018-08-09 Thu 13:17
+% Created 2018-08-10 Fri 14:16
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -33,9 +33,9 @@
 
 
 \section{Introducción}
-\label{sec:orgcaf1f15}
+\label{sec:org26b8e1d}
 \subsection{¿Qué es Haskell?}
-\label{sec:org0df14ea}
+\label{sec:org3042a54}
 Haskell es un lenguaje de programación multi-propósito puramente funcional
 con semántica no estricta y tipado fuerte.
 Haskell cuenta con inferencia de tipos, por lo cual no es necesario especificar
@@ -44,7 +44,7 @@ La mayoría de los lenguajes son imperativos, en estos se especifica los
 pasos que debe realizar el código. Los lenguajes funcionales trabajan de forma diferente.
 En lugar de realizar acciones en secuencia, evalua expresiones.
 \subsubsection{Ejemplo Java}
-\label{sec:org92df6a3}
+\label{sec:org0ff66a7}
 \begin{verbatim}
 int pot(int n, int m){
    int res = 1;
@@ -54,19 +54,19 @@ int pot(int n, int m){
 }
 \end{verbatim}
 \subsubsection{Ejemplo Haskell}
-\label{sec:orgae9227c}
+\label{sec:org9a63f3a}
 \begin{verbatim}
 pot n 0 = 1
 pot n m = n * (pot n (m-1)) 
 \end{verbatim}
 \subsection{Instalación}
-\label{sec:org65c9787}
+\label{sec:org3755eff}
 En la página de \url{https://www.haskell.org/downloads} podrán encontrar los 
 paquetes de Haskell. Existen dos versiones Haskell Platform que incluye 
 el manejador de paquetes, el compilador GHC y otras herramientas.
 O también pueden descargar el compilador GHC que tiene el interpretre ghci.
 \subsection{Tipos básicos}
-\label{sec:orgc0f8ae5}
+\label{sec:orgd4f52b4}
 Haskell tiene definido los siguientes tipos:
 \begin{itemize}
 \item Bool
@@ -110,14 +110,14 @@ Para conocer el tipo de una expresión  en haskell solo se necesita hacer:
 > :t head
 \end{verbatim}
 \subsection{Variables de tipo}
-\label{sec:orga033e84}
+\label{sec:org5e3696e}
 Pero ¿qué es esa a? Los tipos que acabamos de ver empiezan con letra mayúscula.
 La a es una variable de tipo, podemos pensarla como los genericos de otros lenguajes.
 Estas variables de tipo son más poderosas que los genericos, ya que nos 
 permiten escribir funciones muy generales mientras no dependan del comportamiento
 especifico de los tipos. Estas funciones son llamadas polimórficas.
 \subsection{Clases de tipo}
-\label{sec:orgf1fb5f8}
+\label{sec:orgc9aa777}
 Las clases de tipos son una especie de interfaz que define algún tipo de
 comportamiento. Si un tipo es un miembro de una clase de tipos, significa 
 que ese tipo soporta e implementa el comportamiento que define la clase de tipos.
@@ -131,7 +131,7 @@ Se lee: La función de igualdad toma dos parámetros que son del mismo tipo
 y devuelve un Bool. El tipo de estos dos parámetros debe ser miembro de la
 clase Eq.
 \subsubsection{Básicas}
-\label{sec:org5833fd8}
+\label{sec:org3e48978}
 \begin{itemize}
 \item Eq
 \item Ord
@@ -140,15 +140,15 @@ clase Eq.
 \item Enum
 \end{itemize}
 \subsection{Más allá}
-\label{sec:org00f6bf7}
+\label{sec:orga77021f}
 Esta es una introducción a haskell muy muy básica.
 Para seguir aprendiendo hay bastante material 
 en \url{https://www.haskell.org/documentation}
 
 \section{Lógica}
-\label{sec:orgd37d7bd}
+\label{sec:orge31d1ae}
 \subsection{Sintaxis}
-\label{sec:org317a30e}
+\label{sec:org554b6df}
 Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
 \[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
 \[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
@@ -156,7 +156,7 @@ Esta es la sintaxis de la Lógica Proposicional que utilizaremos.
 \[ <Indice> ::= [i | i \in \mathbb{N}]\]
 
 \subsection{Definición en Haskell}
-\label{sec:org3c70cbb}
+\label{sec:org1db401f}
 \begin{verbatim}
 -- Tipo de dato indice
 type Indice = Int
@@ -169,25 +169,53 @@ data PL = Top | Bot
 \end{verbatim}
 
 \subsection{Funciones}
-\label{sec:org762f21b}
+\label{sec:org66ef227}
 \subsubsection{Número de operadores}
-\label{sec:org4e643d4}
+\label{sec:orge026b03}
 \begin{verbatim}
 numOp :: PL -> Int
+numOp Top = 0
+numOp Bot = 0
+numOp (Var x) = 0
+numOp (Oneg p) = numOp p + 1
+numOp (Oand p q) = numOp p + numOp q + 1
+numOp (Oor p q) = numOp p + numOp q + 1
+numOp (Oimp p q) = numOp p + numOp q + 1
 \end{verbatim}
 \subsubsection{Elimina implicaciones}
-\label{sec:org758fa73}
+\label{sec:org9fde8b0}
 \begin{verbatim}
 quitaImp :: PL -> PL
+quitaImp Top = Top
+quitaImp Bot = Bot
+quitaImp (Var x) = Var x
+quitaImp (Oneg p) = Oneg $ quitaImp p
+quitaImp (Oand p q) = Oand (quitaImp p) (quitaImp q)
+quitaImp (Oor p q) = Oor (quitaImp p) (quitaImp q)
+quitaImp (Oimp p q) = Oor (Oneg $ quitaImp p) (quitaImp q)
 \end{verbatim}
 \subsubsection{Número de operadores binarios}
-\label{sec:org0126bc1}
+\label{sec:orgdfe1711}
 \begin{verbatim}
 numObin :: PL -> PL
+numObin Top = 0
+numObin Bot = 0
+numObin (Var x) = 0
+numObin (Oneg p) = numObin p
+numObin (Oand p q) = numObin p + numObin q + 1
+numObin (Oor p q) = numObin p + numObin q + 1
+numObin (Oimp p q) = numObin p + numObin q + 1
 \end{verbatim}
 \subsubsection{Forma Normal Negativa}
-\label{sec:org24c0893}
+\label{sec:org73a7fa9}
 \begin{verbatim}
 toNNF :: PL -> PL
+toNNF p = toNNF $ quitaImp p where
+  toNNF (Oneg (Oand p q)) = toNNF $ Oor (Oneg $ toNNF p) (Oneg $ toNNF q)
+  toNNF (Oneg (Oor p q)) = toNNF $ Oand (Oneg $ toNNF p) (Oneg $ toNNF q)
+  toNNF (Oneg (Oneg p)) = toNNF p
+  toNNF (Oand p q) = Oand (toNNF p) (toNNF q)
+  toNNF (Oor p q) = Oor (toNNF p) (toNNF q)
+  toNNF p = p
 \end{verbatim}
 \end{document}

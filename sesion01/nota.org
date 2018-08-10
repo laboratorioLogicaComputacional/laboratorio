@@ -117,16 +117,44 @@ data PL = Top | Bot
 *** Número de operadores
 #+begin_src haskell
 numOp :: PL -> Int
+numOp Top = 0
+numOp Bot = 0
+numOp (Var x) = 0
+numOp (Oneg p) = numOp p + 1
+numOp (Oand p q) = numOp p + numOp q + 1
+numOp (Oor p q) = numOp p + numOp q + 1
+numOp (Oimp p q) = numOp p + numOp q + 1
 #+end_src
 *** Elimina implicaciones
 #+begin_src haskell
 quitaImp :: PL -> PL
+quitaImp Top = Top
+quitaImp Bot = Bot
+quitaImp (Var x) = Var x
+quitaImp (Oneg p) = Oneg $ quitaImp p
+quitaImp (Oand p q) = Oand (quitaImp p) (quitaImp q)
+quitaImp (Oor p q) = Oor (quitaImp p) (quitaImp q)
+quitaImp (Oimp p q) = Oor (Oneg $ quitaImp p) (quitaImp q)
 #+end_src
 *** Número de operadores binarios
 #+begin_src haskell
 numObin :: PL -> PL
+numObin Top = 0
+numObin Bot = 0
+numObin (Var x) = 0
+numObin (Oneg p) = numObin p
+numObin (Oand p q) = numObin p + numObin q + 1
+numObin (Oor p q) = numObin p + numObin q + 1
+numObin (Oimp p q) = numObin p + numObin q + 1
 #+end_src
 *** Forma Normal Negativa
 #+begin_src haskell
 toNNF :: PL -> PL
+toNNF p = toNNF $ quitaImp p where
+  toNNF (Oneg (Oand p q)) = toNNF $ Oor (Oneg $ toNNF p) (Oneg $ toNNF q)
+  toNNF (Oneg (Oor p q)) = toNNF $ Oand (Oneg $ toNNF p) (Oneg $ toNNF q)
+  toNNF (Oneg (Oneg p)) = toNNF p
+  toNNF (Oand p q) = Oand (toNNF p) (toNNF q)
+  toNNF (Oor p q) = Oor (toNNF p) (toNNF q)
+  toNNF p = p
 #+end_src 
