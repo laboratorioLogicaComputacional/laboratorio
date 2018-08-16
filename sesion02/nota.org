@@ -3,7 +3,6 @@
 #+LATEX_HEADER: \usepackage[AUTO]{babel}
 #+LATEX_HEADER: \usepackage{fancyvrb}
 #+TITLE: Sesión de laboratorio 02
-
 * Haskell
 Para refrescar lo aprendido, en esta ocasión veremos algunas funciones con los
 tipos por defecto de haskell.
@@ -17,14 +16,23 @@ pote x y = x * (pote x (y-1))
 *** Potencia B
 #+begin_src haskell
 poteB :: Int -> Int -> Int
+poteB x y = case y of 
+        0 -> 1
+        _ -> if y > 0 
+        then x * (poteB x (y -1))
+        else error "La potencia tiene que ser positiva"
 #+end_src
 *** Toma primeros n elementos
 #+begin_src haskell
 toma :: Int -> [a] -> [a]
+toma 0 _ = []
+toma _ [] = []
+toma n (x:xs) = [x] ++ toma  
 #+end_src
 *** Mayores
 #+begin_src haskell
 mayores :: Ord a => [a] -> a -> [a]
+mayores l a = [x | x <- l , x>a]
 #+end_src
 
 ** Tipos propios
@@ -34,17 +42,33 @@ Definiremos a los números naturales y algunas funciones de estos.
 data Natural = Cero | Suc Natural deriving (Eq, Show)
 let tres = (Suc (Suc (Suc Cero)))
 #+end_src
+*** Suma (Clase)
+#+begin_src haskell 
+suma :: Natural -> Natural -> Natural
+suma Cero x = x
+suma (Suc x) y = Suc(suma x y)
+#+end_src
 *** Suma
 #+begin_src haskell 
 suma :: Natural -> Natural -> Natural
+suma x y = case y of
+     Cero -> x
+     Suc z -> Suc(suma x z)
 #+end_src
 *** Producto
 #+begin_src haskell 
 prod :: Natural -> Natural -> Natural
+prod x y = case y of 
+     Cero -> Cero
+     Suc z -> suma x (prod x z)
+     
 #+end_src
 *** Potencia
 #+begin_src haskell 
 potN :: Natural -> Natural -> Natural
+potN x y = case y of
+     Cero -> Suc Cero
+     Suc z -> producto x (potencia x z) 
 #+end_src
 *** Int a Natural
 #+begin_src haskell 
@@ -78,12 +102,39 @@ data PL = Top | Bot  | Var Indice
 *** Elimina implicaciones
 #+begin_src haskell
 quitaImp :: PL -> PL
+quitaImp phi = case phi of
+     Top -> Top
+     Bot -> Bot
+     Var x -> Var x
+     Oneg x -> Oneg (quitaImp x)
+     Oand x y -> Oand (quitaImp x) (quitaImp y)
+     Oor x y -> Oor (quitaImp x) (quitaImp y)
+     Oimp x y -> Oor (Oneg (quitaImp x)) (quitaImp y)
 #+end_src
 *** Forma Normal de Negación
 #+begin_src haskell
 toNNF :: PL -> PL
+toNNF phi = case quitaImp phi of
+     Oneg (Oand x y) ->toNNF $ Oor(Oneg (toNNF x)) (Oneg (toNNF y))
+     Oneg (Oor x y) ->toNNF $ Oand(Oneg (toNNF x)) (Oneg (toNNF y))
+     Oneg(Oneg x) -> toNNF x
+     Oand x y -> Oand (toNNF x) Oand (toNNF y)
+     Oor x y -> Oor (toNNF x) Oor (toNNF y)
+     Oneg x -> Oneg (toNNF x)
+     x -> x
+
+     
+
 #+end_src 
 *** Variables de una formula
 #+begin_src haskell 
 varsOf :: PL -> [PL]
+varsOf phi = case phi of
+    Top -> []
+    Bot -> []
+    Var x -> [Var x]
+    Oneg x -> VarsOf x
+    Oand x y -> VarsOf x ++ VarsOf y
+    Oor x y -> VarsOf x ++ VarsOf y
+    Oimp x y -> VarsOf x ++ VarsOf y
 #+end_src

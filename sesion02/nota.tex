@@ -1,104 +1,127 @@
-% Created 2018-08-16 Thu 13:09
-% Intended LaTeX compiler: pdflatex
+% Created 2018-08-16 jue 16:02
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
 \usepackage{graphicx}
-\usepackage{grffile}
 \usepackage{longtable}
+\usepackage{float}
 \usepackage{wrapfig}
 \usepackage{rotating}
 \usepackage[normalem]{ulem}
 \usepackage{amsmath}
 \usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
 \usepackage{amssymb}
-\usepackage{capt-of}
 \usepackage{hyperref}
+\tolerance=1000
 \usepackage[spanish]{babel}
 \usepackage{fancyvrb}
-\author{Mauricio Esquivel Reyes}
+\author{esquivel reyes mauricio}
 \date{\today}
 \title{Sesión de laboratorio 02}
 \hypersetup{
- pdfauthor={Mauricio Esquivel Reyes},
- pdftitle={Sesión de laboratorio 02},
- pdfkeywords={},
- pdfsubject={},
- pdfcreator={Emacs 24.5.1 (Org mode 9.1.13)}, 
- pdflang={Spanish}}
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs 24.5.1 (Org mode 8.2.10)}}
 \begin{document}
 
 \maketitle
 \tableofcontents
 
-
 \section{Haskell}
-\label{sec:orgda4522c}
+\label{sec-1}
 Para refrescar lo aprendido, en esta ocasión veremos algunas funciones con los
 tipos por defecto de haskell.
 \subsection{Funciones}
-\label{sec:org8f76f71}
+\label{sec-1-1}
 \subsubsection{Potencia}
-\label{sec:org1fe59d9}
+\label{sec-1-1-1}
 \begin{verbatim}
 pote :: Int -> Int -> Int
 pote x 0 = 1
 pote x y = x * (pote x (y-1))
 \end{verbatim}
 \subsubsection{Potencia B}
-\label{sec:org0b40d48}
+\label{sec-1-1-2}
 \begin{verbatim}
 poteB :: Int -> Int -> Int
+poteB x y = case y of 
+	0 -> 1
+	_ -> if y > 0 
+	then x * (poteB x (y -1))
+	else error "La potencia tiene que ser positiva"
 \end{verbatim}
 \subsubsection{Toma primeros n elementos}
-\label{sec:orge508b38}
+\label{sec-1-1-3}
 \begin{verbatim}
 toma :: Int -> [a] -> [a]
+toma 0 _ = []
+toma _ [] = []
+toma n (x:xs) = [x] ++ toma
 \end{verbatim}
 \subsubsection{Mayores}
-\label{sec:org3c686c0}
+\label{sec-1-1-4}
 \begin{verbatim}
 mayores :: Ord a => [a] -> a -> [a]
+mayores l a = [x | x <- l , x>a]
 \end{verbatim}
 
 \subsection{Tipos propios}
-\label{sec:orgb68c14a}
+\label{sec-1-2}
 Definiremos a los números naturales y algunas funciones de estos.
 \subsubsection{Definición}
-\label{sec:org28294b0}
+\label{sec-1-2-1}
 \begin{verbatim}
 data Natural = Cero | Suc Natural deriving (Eq, Show)
 let tres = (Suc (Suc (Suc Cero)))
 \end{verbatim}
-\subsubsection{Suma}
-\label{sec:org1587898}
+\subsubsection{Suma (Clase)}
+\label{sec-1-2-2}
 \begin{verbatim}
 suma :: Natural -> Natural -> Natural
+suma Cero x = x
+suma (Suc x) y = Suc(suma x y)
+\end{verbatim}
+\subsubsection{Suma}
+\label{sec-1-2-3}
+\begin{verbatim}
+suma :: Natural -> Natural -> Natural
+suma x y = case y of
+     Cero -> x
+     Suc z -> Suc(suma x z)
 \end{verbatim}
 \subsubsection{Producto}
-\label{sec:org9904d74}
+\label{sec-1-2-4}
 \begin{verbatim}
 prod :: Natural -> Natural -> Natural
+prod x y = case y of 
+     Cero -> Cero
+     Suc z -> suma x (prod x z)
 \end{verbatim}
 \subsubsection{Potencia}
-\label{sec:org7add382}
+\label{sec-1-2-5}
 \begin{verbatim}
 potN :: Natural -> Natural -> Natural
+potN x y = case y of
+     Cero -> Suc Cero
+     Suc z -> producto x (potencia x z)
 \end{verbatim}
 \subsubsection{Int a Natural}
-\label{sec:org658a4f3}
+\label{sec-1-2-6}
 \begin{verbatim}
 int2Natural :: Natural -> Natural -> Natural
 \end{verbatim}
 \subsubsection{Natural a Int}
-\label{sec:org2257adc}
+\label{sec-1-2-7}
 \begin{verbatim}
 natural2Int :: Natural -> Natural -> Natural
 \end{verbatim}
 \section{Lógica Proposicional}
-\label{sec:orgddf4ce4}
+\label{sec-2}
 \subsection{Sintaxis}
-\label{sec:org8615a0e}
+\label{sec-2-1}
 Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
 \[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
 \[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
@@ -106,33 +129,58 @@ Esta es la sintaxis de la Lógica Proposicional que utilizaremos.
 \[ <Indice> ::= [i | i \in \mathbb{N}]\]
 
 \subsection{Definición en Haskell}
-\label{sec:orga7844d5}
+\label{sec-2-2}
 \begin{verbatim}
 -- Tipo de dato indice
 type Indice = Int
 
 -- Tipo de dato fórmula
 data PL = Top | Bot  | Var Indice
-              | Oneg PL 
-              | Oand PL PL | Oor PL PL 
-              | Oimp PL PL deriving (Eq, Show)
+	      | Oneg PL 
+	      | Oand PL PL | Oor PL PL 
+	      | Oimp PL PL deriving (Eq, Show)
 \end{verbatim}
 
 \subsection{Funciones}
-\label{sec:org350b3ae}
+\label{sec-2-3}
 \subsubsection{Elimina implicaciones}
-\label{sec:org7538e94}
+\label{sec-2-3-1}
 \begin{verbatim}
 quitaImp :: PL -> PL
+quitaImp phi = case phi of
+     Top -> Top
+     Bot -> Bot
+     Var x -> Var x
+     Oneg x -> Oneg (quitaImp x)
+     Oand x y -> Oand (quitaImp x) (quitaImp y)
+     Oor x y -> Oor (quitaImp x) (quitaImp y)
+     Oimp x y -> Oor (Oneg (quitaImp x)) (quitaImp y)
 \end{verbatim}
 \subsubsection{Forma Normal de Negación}
-\label{sec:org8acc98a}
+\label{sec-2-3-2}
 \begin{verbatim}
 toNNF :: PL -> PL
+toNNF phi = case quitaImp phi of
+     Oneg (Oand x y) ->toNNF $ Oor(Oneg (toNNF x)) (Oneg (toNNF y))
+     Oneg (Oor x y) ->toNNF $ Oand(Oneg (toNNF x)) (Oneg (toNNF y))
+     Oneg(Oneg x) -> toNNF x
+     Oand x y -> Oand (toNNF x) Oand (toNNF y)
+     Oor x y -> Oor (toNNF x) Oor (toNNF y)
+     Oneg x -> Oneg (toNNF x)
+     x -> x
 \end{verbatim}
 \subsubsection{Variables de una formula}
-\label{sec:orgeb38236}
+\label{sec-2-3-3}
 \begin{verbatim}
 varsOf :: PL -> [PL]
+varsOf phi = case phi of
+    Top -> []
+    Bot -> []
+    Var x -> [Var x]
+    Oneg x -> VarsOf x
+    Oand x y -> VarsOf x ++ VarsOf y
+    Oor x y -> VarsOf x ++ VarsOf y
+    Oimp x y -> VarsOf x ++ VarsOf y
 \end{verbatim}
+% Emacs 24.5.1 (Org mode 8.2.10)
 \end{document}
