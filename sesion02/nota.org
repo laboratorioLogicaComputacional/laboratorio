@@ -14,9 +14,9 @@ pote :: Int -> Int -> Int
 pote x 0 = 1
 pote x y = x * (pote x (y-1))
 #+end_src
-*** Potencia 2
+*** Potencia B
 #+begin_src haskell
-pote2 :: Int -> Int -> Int
+poteB :: Int -> Int -> Int
 #+end_src
 *** Toma primeros n elementos
 #+begin_src haskell
@@ -27,6 +27,33 @@ toma :: Int -> [a] -> [a]
 mayores :: Ord a => [a] -> a -> [a]
 #+end_src
 
+** Tipos propios
+Definiremos a los números naturales y algunas funciones de estos.
+*** Definición
+#+begin_src haskell
+data Natural = Cero | Suc Natural deriving (Eq, Show)
+let tres = (Suc (Suc (Suc Cero)))
+#+end_src
+*** Suma
+#+begin_src haskell 
+suma :: Natural -> Natural -> Natural
+#+end_src
+*** Producto
+#+begin_src haskell 
+prod :: Natural -> Natural -> Natural
+#+end_src
+*** Potencia
+#+begin_src haskell 
+potN :: Natural -> Natural -> Natural
+#+end_src
+*** Int a Natural
+#+begin_src haskell 
+int2Natural :: Natural -> Natural -> Natural
+#+end_src
+*** Natural a Int
+#+begin_src haskell 
+natural2Int :: Natural -> Natural -> Natural
+#+end_src
 * Lógica Proposicional
 ** Sintaxis
 Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
@@ -41,8 +68,8 @@ Esta es la sintaxis de la Lógica Proposicional que utilizaremos.
 type Indice = Int
 
 -- Tipo de dato fórmula
-data PL = Top | Bot 
-              | Var Indice | Oneg PL 
+data PL = Top | Bot  | Var Indice
+              | Oneg PL 
               | Oand PL PL | Oor PL PL 
               | Oimp PL PL deriving (Eq, Show)
 #+end_src
@@ -52,7 +79,7 @@ data PL = Top | Bot
 #+begin_src haskell
 quitaImp :: PL -> PL
 #+end_src
-*** Forma Normal Negativa
+*** Forma Normal de Negación
 #+begin_src haskell
 toNNF :: PL -> PL
 #+end_src 

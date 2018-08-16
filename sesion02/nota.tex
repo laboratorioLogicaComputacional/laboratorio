@@ -1,0 +1,138 @@
+% Created 2018-08-16 Thu 13:09
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Mauricio Esquivel Reyes}
+\date{\today}
+\title{Sesión de laboratorio 02}
+\hypersetup{
+ pdfauthor={Mauricio Esquivel Reyes},
+ pdftitle={Sesión de laboratorio 02},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 24.5.1 (Org mode 9.1.13)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{Haskell}
+\label{sec:orgda4522c}
+Para refrescar lo aprendido, en esta ocasión veremos algunas funciones con los
+tipos por defecto de haskell.
+\subsection{Funciones}
+\label{sec:org8f76f71}
+\subsubsection{Potencia}
+\label{sec:org1fe59d9}
+\begin{verbatim}
+pote :: Int -> Int -> Int
+pote x 0 = 1
+pote x y = x * (pote x (y-1))
+\end{verbatim}
+\subsubsection{Potencia B}
+\label{sec:org0b40d48}
+\begin{verbatim}
+poteB :: Int -> Int -> Int
+\end{verbatim}
+\subsubsection{Toma primeros n elementos}
+\label{sec:orge508b38}
+\begin{verbatim}
+toma :: Int -> [a] -> [a]
+\end{verbatim}
+\subsubsection{Mayores}
+\label{sec:org3c686c0}
+\begin{verbatim}
+mayores :: Ord a => [a] -> a -> [a]
+\end{verbatim}
+
+\subsection{Tipos propios}
+\label{sec:orgb68c14a}
+Definiremos a los números naturales y algunas funciones de estos.
+\subsubsection{Definición}
+\label{sec:org28294b0}
+\begin{verbatim}
+data Natural = Cero | Suc Natural deriving (Eq, Show)
+let tres = (Suc (Suc (Suc Cero)))
+\end{verbatim}
+\subsubsection{Suma}
+\label{sec:org1587898}
+\begin{verbatim}
+suma :: Natural -> Natural -> Natural
+\end{verbatim}
+\subsubsection{Producto}
+\label{sec:org9904d74}
+\begin{verbatim}
+prod :: Natural -> Natural -> Natural
+\end{verbatim}
+\subsubsection{Potencia}
+\label{sec:org7add382}
+\begin{verbatim}
+potN :: Natural -> Natural -> Natural
+\end{verbatim}
+\subsubsection{Int a Natural}
+\label{sec:org658a4f3}
+\begin{verbatim}
+int2Natural :: Natural -> Natural -> Natural
+\end{verbatim}
+\subsubsection{Natural a Int}
+\label{sec:org2257adc}
+\begin{verbatim}
+natural2Int :: Natural -> Natural -> Natural
+\end{verbatim}
+\section{Lógica Proposicional}
+\label{sec:orgddf4ce4}
+\subsection{Sintaxis}
+\label{sec:org8615a0e}
+Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
+\[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
+\[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
+\[<VariableProposicional> ::= v<Indice>\]
+\[ <Indice> ::= [i | i \in \mathbb{N}]\]
+
+\subsection{Definición en Haskell}
+\label{sec:orga7844d5}
+\begin{verbatim}
+-- Tipo de dato indice
+type Indice = Int
+
+-- Tipo de dato fórmula
+data PL = Top | Bot  | Var Indice
+              | Oneg PL 
+              | Oand PL PL | Oor PL PL 
+              | Oimp PL PL deriving (Eq, Show)
+\end{verbatim}
+
+\subsection{Funciones}
+\label{sec:org350b3ae}
+\subsubsection{Elimina implicaciones}
+\label{sec:org7538e94}
+\begin{verbatim}
+quitaImp :: PL -> PL
+\end{verbatim}
+\subsubsection{Forma Normal de Negación}
+\label{sec:org8acc98a}
+\begin{verbatim}
+toNNF :: PL -> PL
+\end{verbatim}
+\subsubsection{Variables de una formula}
+\label{sec:orgeb38236}
+\begin{verbatim}
+varsOf :: PL -> [PL]
+\end{verbatim}
+\end{document}
