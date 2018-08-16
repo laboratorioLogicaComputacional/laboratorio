@@ -72,3 +72,13 @@ toNNF p = toNNF $ quitaImp p where
   toNNF (Oand p q) = Oand (toNNF p) (toNNF q)
   toNNF (Oor p q) = Oor (toNNF p) (toNNF q)
   toNNF p = p
+
+--Función que nos da las variables de una formula
+varsOf :: PL -> [PL]
+varsOf Top = []
+varsOf Bot = []
+varsOf (Var x) = [(Var x)]
+varsOf (Oneg q) = varsOf q
+varsOf (Oand q r) = varsOf q ++ varsOf r
+varsOf (Oor q r) = varsOf q ++ varsOf r
+varsOf (Oimp q r) = varsOf q ++ varsOf r

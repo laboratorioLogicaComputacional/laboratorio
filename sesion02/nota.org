@@ -1,0 +1,62 @@
+#+LATEX_CLASS: article
+#+LANGUAGE: es
+#+LATEX_HEADER: \usepackage[AUTO]{babel}
+#+LATEX_HEADER: \usepackage{fancyvrb}
+#+TITLE: Sesión de laboratorio 02
+
+* Haskell
+Para refrescar lo aprendido, en esta ocasión veremos algunas funciones con los
+tipos por defecto de haskell.
+** Funciones
+*** Potencia
+#+begin_src haskell
+pote :: Int -> Int -> Int
+pote x 0 = 1
+pote x y = x * (pote x (y-1))
+#+end_src
+*** Potencia 2
+#+begin_src haskell
+pote2 :: Int -> Int -> Int
+#+end_src
+*** Toma primeros n elementos
+#+begin_src haskell
+toma :: Int -> [a] -> [a]
+#+end_src
+*** Mayores
+#+begin_src haskell
+mayores :: Ord a => [a] -> a -> [a]
+#+end_src
+
+* Lógica Proposicional
+** Sintaxis
+Esta es la sintaxis de la Lógica Proposicional que utilizaremos. 
+\[PL ::= <ProposiciónAtómica> | \neg PL | (PL \land PL) | (PL \lor PL) | (PL \to PL) \]
+\[<ProposiciónAtómica> ::= \top | \bot | <VariableProposicional>\]
+\[<VariableProposicional> ::= v<Indice>\]
+\[ <Indice> ::= [i | i \in \mathbb{N}]\]
+
+** Definición en Haskell
+#+begin_src haskell
+-- Tipo de dato indice
+type Indice = Int
+
+-- Tipo de dato fórmula
+data PL = Top | Bot 
+              | Var Indice | Oneg PL 
+              | Oand PL PL | Oor PL PL 
+              | Oimp PL PL deriving (Eq, Show)
+#+end_src
+
+** Funciones
+*** Elimina implicaciones
+#+begin_src haskell
+quitaImp :: PL -> PL
+#+end_src
+*** Forma Normal Negativa
+#+begin_src haskell
+toNNF :: PL -> PL
+#+end_src 
+*** Variables de una formula
+#+begin_src haskell 
+varsOf :: PL -> [PL]
+#+end_src
