@@ -11,25 +11,25 @@ realizaremos un par de nuevas funciones, haciendo recursión sobre la estructura
 #+begin_src haskell
 quitaImp :: PL -> PL
 quitaImp phi = case phi of
-     Top -> Top
-     Bot -> Bot
-     Var x -> Var x
-     Oneg x -> Oneg (quitaImp x)
-     Oand x y -> Oand (quitaImp x) (quitaImp y)
-     Oor x y -> Oor (quitaImp x) (quitaImp y)
-     Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
+ Top -> Top
+ Bot -> Bot
+ Var x -> Var x
+ Oneg x -> Oneg (quitaImp x)
+ Oand x y -> Oand (quitaImp x) (quitaImp y)
+ Oor x y -> Oor (quitaImp x) (quitaImp y)
+ Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
 #+end_src
 *** Forma Normal de Negación
 #+begin_src haskell
 toNNF :: PL -> PL
 toNNF phi = case quitaImp phi of
-     Oneg (Oand x y) -> toNNF $ Oor (Oneg $ toNNF x) (Oneg $ toNNF y)
-     Oneg (Oor x y) -> toNNF $ Oand (Oneg $ toNNF x) (Oneg $ toNNF y)
-     Oneg (Oneg x) -> toNNF x
-     Oand x y -> Oand (toNNF x) (toNNF y)
-     Oor x y -> Oor (toNNF x) (toNNF y)
-     Oneg x -> Oneg (toNNF x)
-     x -> x
+ Oneg (Oand x y) -> toNNF $ Oor (Oneg $ toNNF x) (Oneg $ toNNF y)
+ Oneg (Oor x y) -> toNNF $ Oand (Oneg $ toNNF x) (Oneg $ toNNF y)
+ Oneg (Oneg x) -> toNNF x
+ Oand x y -> Oand (toNNF x) (toNNF y)
+ Oor x y -> Oor (toNNF x) (toNNF y)
+ Oneg x -> Oneg (toNNF x)
+ x -> x
 #+end_src 
 *** Forma Normal de Negación 2
 **** noImp2NNF
@@ -37,22 +37,22 @@ toNNF phi = case quitaImp phi of
 -- Precondición: phi no tiene operadores de implicación.
 noImp2NNF :: PL -> PL
 noImp2NNF phi = case phi of
-       -- Casos base:
-       Top -> Top
-       Bot -> Bot
-       Var v -> Var v
-       -- Casos recursivos:
-       Oneg alfa -> case alfa of
-              -- Casos bases (alfa)
-              Top -> Bot
-              Bot -> Top
-              Var v -> Oneg (Var v)
-              -- Casos recursivos (alfa)
-              Oneg g -> noImp2NNF g
-              Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
-              Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
-       Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
-       Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
+ -- Casos base:
+ Top -> Top
+ Bot -> Bot
+ Var v -> Var v
+ -- Casos recursivos:
+ Oneg alfa -> case alfa of
+  -- Casos bases (alfa)
+  Top -> Bot
+  Bot -> Top
+  Var v -> Oneg (Var v)
+  -- Casos recursivos (alfa)
+   Oneg g -> noImp2NNF g
+   Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
+   Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
+ Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
+ Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
 #+end_src
 **** toNNF2
 #+begin_src haskell
@@ -67,10 +67,10 @@ disy phi = case phi of
  Top -> []
  Bot -> []
  Var v -> []
- Oneg alpha -> disy(alpha)
- Oor alpha beta -> [Oor aplpha beta]++disy(alpha)++ disy(beta)
- Oand alpha beta -> disy(alpha)++ disy(beta)
- Oimp alpha beta -> disy(alpha)++ disy(beta)
+ Oneg alpha -> disy alpha 
+ Oor alpha beta -> [Oor aplpha beta] ++ disy alpha ++ disy beta 
+ Oand alpha beta -> disy alpha ++ disy beta
+ Oimp alpha beta -> disy alpha ++ disy beta
 #+end_src
 *** Número de disyunciones de una formula
 #+begin_src haskell

@@ -1,4 +1,4 @@
-% Created 2018-08-22 Wed 22:56
+% Created 2018-08-23 Thu 17:31
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -16,15 +16,15 @@
 \usepackage{hyperref}
 \usepackage[spanish]{babel}
 \usepackage{fancyvrb}
-\author{Mauricio Esquivel}
+\author{Mauricio Esquivel Reyes}
 \date{\today}
 \title{Sesión de laboratorio 03}
 \hypersetup{
- pdfauthor={Mauricio Esquivel},
+ pdfauthor={Mauricio Esquivel Reyes},
  pdftitle={Sesión de laboratorio 03},
  pdfkeywords={},
  pdfsubject={},
- pdfcreator={Emacs 24.5.1 (Org mode 9.1.2)}, 
+ pdfcreator={Emacs 24.5.1 (Org mode 9.1.13)}, 
  pdflang={Spanish}}
 \begin{document}
 
@@ -32,65 +32,65 @@
 \tableofcontents
 
 \section{Lógica Proposicional}
-\label{sec:org0b64e7f}
+\label{sec:org6c8bd7a}
 \subsection{Funciones}
-\label{sec:orgaf07e5e}
+\label{sec:org9190209}
 Veremos algunas funciones que ya definimos para la lógica proposicional y 
 realizaremos un par de nuevas funciones, haciendo recursión sobre la estructura.
 \subsubsection{Elimina implicaciones}
-\label{sec:orgfc7fb97}
+\label{sec:org4ea8142}
 \begin{verbatim}
 quitaImp :: PL -> PL
 quitaImp phi = case phi of
-     Top -> Top
-     Bot -> Bot
-     Var x -> Var x
-     Oneg x -> Oneg (quitaImp x)
-     Oand x y -> Oand (quitaImp x) (quitaImp y)
-     Oor x y -> Oor (quitaImp x) (quitaImp y)
-     Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
+ Top -> Top
+ Bot -> Bot
+ Var x -> Var x
+ Oneg x -> Oneg (quitaImp x)
+ Oand x y -> Oand (quitaImp x) (quitaImp y)
+ Oor x y -> Oor (quitaImp x) (quitaImp y)
+ Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
 \end{verbatim}
 \subsubsection{Forma Normal de Negación}
-\label{sec:orgdb48c3a}
+\label{sec:orgd44b7c3}
 \begin{verbatim}
 toNNF :: PL -> PL
 toNNF phi = case quitaImp phi of
-     Oneg (Oand x y) -> toNNF $ Oor (Oneg $ toNNF x) (Oneg $ toNNF y)
-     Oneg (Oor x y) -> toNNF $ Oand (Oneg $ toNNF x) (Oneg $ toNNF y)
-     Oneg (Oneg x) -> toNNF x
-     Oand x y -> Oand (toNNF x) (toNNF y)
-     Oor x y -> Oor (toNNF x) (toNNF y)
-     Oneg x -> Oneg (toNNF x)
-     x -> x
+ Oneg (Oand x y) -> toNNF $ Oor (Oneg $ toNNF x) (Oneg $ toNNF y)
+ Oneg (Oor x y) -> toNNF $ Oand (Oneg $ toNNF x) (Oneg $ toNNF y)
+ Oneg (Oneg x) -> toNNF x
+ Oand x y -> Oand (toNNF x) (toNNF y)
+ Oor x y -> Oor (toNNF x) (toNNF y)
+ Oneg x -> Oneg (toNNF x)
+ x -> x
 \end{verbatim}
 \subsubsection{Forma Normal de Negación 2}
-\label{sec:orgda8afbe}
+\label{sec:orgd273ad0}
 \begin{enumerate}
 \item noImp2NNF
-\label{sec:org82b4a30}
+\label{sec:orgc1b016f}
 \begin{verbatim}
 -- Precondición: phi no tiene operadores de implicación.
 noImp2NNF :: PL -> PL
 noImp2NNF phi = case phi of
-       -- Casos base:
-       Top -> phi
-       Bot -> phi
-       Var v -> Var v
-       -- Casos recursivos:
-       Oneg alfa -> case alfa of
-              -- Casos bases (alfa)
-              Top -> Bot
-              Bot -> Top
-              Var v -> Oneg (Var v)
-              -- Casos recursivos (alfa)
-              Oneg g -> noImp2NNF g
-              Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
-              Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
-       Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
-       Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
+ -- Casos base:
+ Top -> Top
+ Bot -> Bot
+ Var v -> Var v
+ -- Casos recursivos:
+ Oneg alfa -> case alfa of
+  -- Casos bases (alfa)
+  Top -> Bot
+  Bot -> Top
+  Var v -> Oneg (Var v)
+  -- Casos recursivos (alfa)
+   Oneg g -> noImp2NNF g
+   Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
+   Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
+ Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
+ Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
 \end{verbatim}
 \item toNNF2
-\label{sec:org1cbac28}
+\label{sec:orga4d350a}
 \begin{verbatim}
 -- Precondición: ninguna.
 toNNF2 :: PL -> PL
@@ -98,19 +98,45 @@ toNNF2 = noImp2NNF . quitaImp -- Composicion de funciones.
 \end{verbatim}
 \end{enumerate}
 \subsubsection{Disyunciones de una formula}
-\label{sec:orge648da7}
+\label{sec:orgc9557c3}
 \begin{verbatim}
 disy :: PL -> [PL]
+disy phi = case phi of 
+ Top -> []
+ Bot -> []
+ Var v -> []
+ Oneg alpha -> disy alpha 
+ Oor alpha beta -> [Oor aplpha beta] ++ disy alpha ++ disy beta 
+ Oand alpha beta -> disy alpha ++ disy beta
+ Oimp alpha beta -> disy alpha ++ disy beta
 \end{verbatim}
 \subsubsection{Número de disyunciones de una formula}
-\label{sec:org09a0b8f}
+\label{sec:org8b29bd7}
 \begin{verbatim}
 numdisy :: PL -> Int
+numdisy phi -> case phi of
+      Top -> 0
+      Bot -> 0
+      Var v -> 0
+      Oneg alpha -> numdisy alpha
+      Oor alpha beta -> 1 + numdisy alpha + numdisy beta
+      Oand alpha beta -> numdisy alpha + numdisy beta
+      Oimp alpha beta -> numdisy alpha + numdisy beta  
 \end{verbatim}
 \subsubsection{isInNFF}
-\label{sec:orga427c01}
+\label{sec:orgb67a2cc}
 Función que nos indica si una formula esta en forma normal de negación.
 \begin{verbatim}
 isInNFF :: PL -> Bool
+isInNFF phi = case phi of
+ Top-> True
+ Bot-> True
+ Var v -> True
+ Oneg alpha -> case alpha of
+  Var x -> True
+  _ -> False 
+ Oor alpha beta -> isInNFF alpha && isInNFF beta
+ Oand alpha beta -> isInNFF alpha && isInNFF beta
+ Oimp _ _ -> False
 \end{verbatim}
 \end{document}
