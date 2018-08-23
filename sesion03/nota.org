@@ -2,7 +2,13 @@
 #+LANGUAGE: es
 #+LATEX_HEADER: \usepackage[AUTO]{babel}
 #+LATEX_HEADER: \usepackage{fancyvrb}
-#+TITLE: Sesión de laboratorio 03
+#+OPTIONS: toc:nil
+#+DATE:
+#+AUTHOR: Dr. Miguel Carrillo Barajas \\
+#+AUTHOR: Estefanía Prieto Larios \\
+#+AUTHOR: Mauricio Esquivel Reyes \\
+#+TITLE: Sesión de laboratorio 03 \\
+#+TITLE: Lógica Computacional
 * Lógica Proposicional
 ** Funciones
 Veremos algunas funciones que ya definimos para la lógica proposicional y 
@@ -48,9 +54,9 @@ noImp2NNF phi = case phi of
   Bot -> Top
   Var v -> Oneg (Var v)
   -- Casos recursivos (alfa)
-   Oneg g -> noImp2NNF g
-   Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
-   Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
+  Oneg g -> noImp2NNF g
+  Oand g h -> noImp2NNF (Oor (Oneg g) (Oneg h))
+  Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
  Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
  Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
 #+end_src
@@ -76,13 +82,13 @@ disy phi = case phi of
 #+begin_src haskell
 numdisy :: PL -> Int
 numdisy phi -> case phi of
-      Top -> 0
-      Bot -> 0
-      Var v -> 0
-      Oneg alpha -> numdisy alpha
-      Oor alpha beta -> 1 + numdisy alpha + numdisy beta
-      Oand alpha beta -> numdisy alpha + numdisy beta
-      Oimp alpha beta -> numdisy alpha + numdisy beta  
+ Top -> 0
+ Bot -> 0
+ Var v -> 0
+ Oneg alpha -> numdisy alpha
+ Oor alpha beta -> 1 + numdisy alpha + numdisy beta
+ Oand alpha beta -> numdisy alpha + numdisy beta
+ Oimp alpha beta -> numdisy alpha + numdisy beta  
 #+end_src 
 *** isInNFF
 Función que nos indica si una formula esta en forma normal de negación.
