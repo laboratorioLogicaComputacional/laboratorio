@@ -1,14 +1,45 @@
-#+LATEX_CLASS: article
-#+LANGUAGE: es
-#+LATEX_HEADER: \usepackage[AUTO]{babel}
-#+LATEX_HEADER: \usepackage{fancyvrb}
-#+TITLE: Sesión de laboratorio 03
-* Lógica Proposicional
-** Funciones
+% Created 2018-08-22 Wed 22:56
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Mauricio Esquivel}
+\date{\today}
+\title{Sesión de laboratorio 03}
+\hypersetup{
+ pdfauthor={Mauricio Esquivel},
+ pdftitle={Sesión de laboratorio 03},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 24.5.1 (Org mode 9.1.2)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Lógica Proposicional}
+\label{sec:org0b64e7f}
+\subsection{Funciones}
+\label{sec:orgaf07e5e}
 Veremos algunas funciones que ya definimos para la lógica proposicional y 
 realizaremos un par de nuevas funciones, haciendo recursión sobre la estructura.
-*** Elimina implicaciones
-#+begin_src haskell
+\subsubsection{Elimina implicaciones}
+\label{sec:orgfc7fb97}
+\begin{verbatim}
 quitaImp :: PL -> PL
 quitaImp phi = case phi of
      Top -> Top
@@ -18,9 +49,10 @@ quitaImp phi = case phi of
      Oand x y -> Oand (quitaImp x) (quitaImp y)
      Oor x y -> Oor (quitaImp x) (quitaImp y)
      Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
-#+end_src
-*** Forma Normal de Negación
-#+begin_src haskell
+\end{verbatim}
+\subsubsection{Forma Normal de Negación}
+\label{sec:orgdb48c3a}
+\begin{verbatim}
 toNNF :: PL -> PL
 toNNF phi = case quitaImp phi of
      Oneg (Oand x y) -> toNNF $ Oor (Oneg $ toNNF x) (Oneg $ toNNF y)
@@ -30,10 +62,13 @@ toNNF phi = case quitaImp phi of
      Oor x y -> Oor (toNNF x) (toNNF y)
      Oneg x -> Oneg (toNNF x)
      x -> x
-#+end_src 
-*** Forma Normal de Negación 2
-**** noImp2NNF
-#+begin_src haskell
+\end{verbatim}
+\subsubsection{Forma Normal de Negación 2}
+\label{sec:orgda8afbe}
+\begin{enumerate}
+\item noImp2NNF
+\label{sec:org82b4a30}
+\begin{verbatim}
 -- Precondición: phi no tiene operadores de implicación.
 noImp2NNF :: PL -> PL
 noImp2NNF phi = case phi of
@@ -53,23 +88,29 @@ noImp2NNF phi = case phi of
               Oor g h -> noImp2NNF (Oand (Oneg g) (Oneg h))
        Oand alfa beta -> Oand (noImp2NNF alfa) (noImp2NNF beta)
        Oor alfa beta -> Oor (noImp2NNF alfa) (noImp2NNF beta)
-#+end_src
-**** toNNF2
-#+begin_src haskell
+\end{verbatim}
+\item toNNF2
+\label{sec:org1cbac28}
+\begin{verbatim}
 -- Precondición: ninguna.
 toNNF2 :: PL -> PL
 toNNF2 = noImp2NNF . quitaImp -- Composicion de funciones.
-#+end_src
-*** Disyunciones de una formula
-#+begin_src haskell 
+\end{verbatim}
+\end{enumerate}
+\subsubsection{Disyunciones de una formula}
+\label{sec:orge648da7}
+\begin{verbatim}
 disy :: PL -> [PL]
-#+end_src
-*** Número de disyunciones de una formula
-#+begin_src haskell
+\end{verbatim}
+\subsubsection{Número de disyunciones de una formula}
+\label{sec:org09a0b8f}
+\begin{verbatim}
 numdisy :: PL -> Int
-#+end_src 
-*** isInNFF
+\end{verbatim}
+\subsubsection{isInNFF}
+\label{sec:orga427c01}
 Función que nos indica si una formula esta en forma normal de negación.
-#+begin_src haskell
+\begin{verbatim}
 isInNFF :: PL -> Bool
-#+end_src
+\end{verbatim}
+\end{document}

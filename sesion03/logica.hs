@@ -94,3 +94,20 @@ numdisy phi = case phi of
   Oand alfa beta -> numdisy alfa + numdisy beta
   Oor alfa beta -> numdisy alfa + numdisy beta + 1
   Oimp alfa beta -> numdisy alfa + numdisy beta
+
+--isInNNF phi=True si phi in NNF, i.e. isInNNF(phi) = True si:
+--    i)  el operador "->" no ocurre en phi.
+--    ii) las ocurrencias de "¬" en phi se aplican solamente a variables proposicionales.
+isInNNF :: PL -> Bool
+isInNNF phi = case phi of
+  --Casos base:
+  Top                 -> True
+  Bot                 -> True
+  Var _               -> True
+  --Casos recursivos:
+  Oneg alfa           -> case alfa of -- Es decir, phi = ¬alfa.
+    Var _   -> True  -- isInNNF(¬alfa)=True  si alfa es una variable.
+    _       -> False -- isInNNF(¬alfa)=False si alfa no es una variable.
+  alfa `Oand` beta    -> (isInNNF alfa) && (isInNNF beta)
+  alfa `Oor`  beta    -> (isInNNF alfa) && (isInNNF beta)
+  _    `Oimp` _       -> False    --phi in NNF => "->" no ocurre en phi
