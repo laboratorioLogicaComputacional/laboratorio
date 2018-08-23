@@ -38,8 +38,8 @@ toNNF phi = case quitaImp phi of
 noImp2NNF :: PL -> PL
 noImp2NNF phi = case phi of
        -- Casos base:
-       Top -> phi
-       Bot -> phi
+       Top -> Top
+       Bot -> Bot
        Var v -> Var v
        -- Casos recursivos:
        Oneg alfa -> case alfa of
@@ -63,13 +63,39 @@ toNNF2 = noImp2NNF . quitaImp -- Composicion de funciones.
 *** Disyunciones de una formula
 #+begin_src haskell 
 disy :: PL -> [PL]
+disy phi = case phi of 
+ Top -> []
+ Bot -> []
+ Var v -> []
+ Oneg alpha -> disy(alpha)
+ Oor alpha beta -> [Oor aplpha beta]++disy(alpha)++ disy(beta)
+ Oand alpha beta -> disy(alpha)++ disy(beta)
+ Oimp alpha beta -> disy(alpha)++ disy(beta)
 #+end_src
 *** Número de disyunciones de una formula
 #+begin_src haskell
 numdisy :: PL -> Int
+numdisy phi -> case phi of
+      Top -> 0
+      Bot -> 0
+      Var v -> 0
+      Oneg alpha -> numdisy alpha
+      Oor alpha beta -> 1 + numdisy alpha + numdisy beta
+      Oand alpha beta -> numdisy alpha + numdisy beta
+      Oimp alpha beta -> numdisy alpha + numdisy beta  
 #+end_src 
 *** isInNFF
 Función que nos indica si una formula esta en forma normal de negación.
 #+begin_src haskell
 isInNFF :: PL -> Bool
+isInNFF phi = case phi of
+ Top-> True
+ Bot-> True
+ Var v -> True
+ Oneg alpha -> case alpha of
+  Var x -> True
+  _ -> False 
+ Oor alpha beta -> isInNFF alpha && isInNFF beta
+ Oand alpha beta -> isInNFF alpha && isInNFF beta
+ Oimp _ _ -> False
 #+end_src
