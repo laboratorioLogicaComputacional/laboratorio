@@ -1,0 +1,188 @@
+#+LATEX_CLASS: article
+#+LANGUAGE: es
+#+LATEX_HEADER: \usepackage[AUTO]{babel}
+#+LATEX_HEADER: \usepackage{fancyvrb}
+#+OPTIONS: toc:nil
+#+DATE:
+#+AUTHOR: Dr. Miguel Carrillo Barajas \\
+#+AUTHOR: Estefanía Prieto Larios \\
+#+AUTHOR: Mauricio Esquivel Reyes \\
+#+TITLE: Sesión de laboratorio 04 \\
+#+TITLE: Lógica Computacional
+* Solución práctica urgente 1
+Veremos una solución de la práctica urgente 1
+** Definición de Lógica Proposicional en Haskell.
+#+begin_src haskell
+type Indice = Int
+data PL =  Top | Bot | Var Indice -- Casos base
+--Casos recursivos
+| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL 
+#+end_src
+** Quita Implicaciones
+#+begin_src haskell
+-- Función que quita implicaciones de una formula
+quitaImp :: PL -> PL
+quitaImp phi = case phi of
+ Top -> Top
+ Bot -> Bot
+ Var x -> Var x
+ Oneg x -> Oneg (quitaImp x)
+ Oand x y -> Oand (quitaImp x) (quitaImp y)
+ Oor x y -> Oor (quitaImp x) (quitaImp y)
+ Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
+#+end_src 
+** Número de ocurrencias de variables
+#+begin_src haskell
+-- Función que cuenta las ocurrencias de variables en una formula
+numOcurVar :: PL -> Int
+numOcurVar phi = case phi of
+ Top -> 0
+ Bot -> 0
+ Var _ -> 1
+ Oneg alfa -> numOcurVar alfa
+ Oand alfa beta -> numOcurVar alfa + numOcurVar beta
+ Oor alfa beta -> numOcurVar alfa + numOcurVar beta
+ Oimp  alfa beta -> numOcurVar alfa + numOcurVar beta
+#+end_src
+** Compara número de ocurrencias 
+#+begin_src haskell
+-- Función que compara el número de ocurrencias de variables de una
+-- formula y su forma normal de negación
+compOcurVar :: PL -> Bool
+compOcurVar phi = numOcurVar phi == (numOcurVar $ quitaImp phi)
+#+end_src 
+* LaTeX
+** Introducción
+\LaTeX{} es un sistema de composición de textos, orientados a la creación de documentos escritos que presentan una alta calidad tipográfica.
+\LaTeX{} presupone una filosofía de trabajo diferente a la de los procesadores de texto habituales (conocidos como WYSIWYG, es decir, «lo que ves es lo que obtienes») y se basa en instrucciones. 
+El modo en que LaTeX interpreta la «forma» que debe tener el documento es mediante etiquetas. Por ejemplo, documentclass{article} le dice a \LaTeX{} que el documento que va a procesar es un artículo.
+Después de haber creado un archivo de texto plano hay que compilarlo para que nos de el PDF.
+Los reportes de las prácticas de laboratorio se entregarán en \LaTeX{}.
+** Uso
+Pueden obtener \LaTeX{} en la siguiente dirección https://www.latex-project.org/get/
+O pueden utilizar https://www.overleaf.com el cual te deja editar archivos, 
+visualizarlos en el instante y  pueden editarlo entre varias personas.
+** Ejemplo
+#+begin_src 
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\author{Hambone Fakenamington \\
+Carla Mercedes Benz-Brown}
+\title{Reporte Práctica XX \\
+Lógica Computacional}
+\date{}
+\begin{document}
+\maketitle
+\section{Secciones y subsecciones}
+\subsection Listas
+\begin{itemize}
+\item Uno
+\item Two
+\item Trois
+\end{itemize}
+\subsection{Enumeraciones}
+\begin{enumerate}
+\item Premier
+\item Second
+\item Tercero
+\begin{itemize}
+\item A
+\item B
+\item C
+\end{itemize}
+\end{enumerate}
+\subsection{Formulas matemáticas}
+Para escribirlas sobre la linea de texto es entre dos \$ \\
+La formula $p$ esta en forma... \\
+Para resaltarlas se escribe entre corchetes de la siguiente manera
+\[ \prod_{i=a}^{b} f(i) \]
+\end{document}
+#+end_src
+* Implementación de la semántica
+** Valuaciones
+ + Def. Decimos que \sigma es una valuación si $\sigma: X \rightarrow {0,1}$ y $\emptyset \neq X \subseteq Var$.
+   En particular, si $\sigma: Var \rightarrow {0,1}$  
+#+begin_src haskell 
+type Valuacion = Indice -> Bool
+#+end_src
+ * Def. Sean $\sigma: Var \rightarrow {0,1}$ una valuación  y $\phi \in PL$.
+ Definimos la relación  $\sigma \models \phi$, usando recursión  sobre la estructura de \phi
+#+begin_src haskell
+satPL :: Valuacion -> PL -> Bool
+
+#+end_src
+** Modelos
+ * Def. m es un modelo si $m \subseteq Var$.
+ satMod m phi = True sii $m \models \varphi$
+#+begin_src haskell 
+type Modelo = [Indice]
+#+end_src
+ * Def. Sean m un modelo y $\phi \in PL$.
+ Definimos la relación  $m \models \phi$, usando recursión  sobre la estructura de \phi
+#+begin_src haskell
+satMod :: Modelo -> PL -> Bool
+
+#+end_src
+** Modelo a Valuacion
+#+begin_src haskell
+modeloToValuacion :: Modelo -> Valuacion
+modeloToValuacion m = sigma_m
+    where
+    sigma_m :: Valuacion
+    sigma_m v = elem v m
+#+end_src
+ ¿Qué resultado se espera de satMod \sigma \phi == satPL \sigma (toNNF \phi)?
+** Potencia
+#+begin_src haskell
+powerSet :: [t] -> [[t]]
+powerSet l  = case l of
+                   []   -> [[]]
+                   x:xs -> powerXS ++ [x:w | w <- powerXS]
+                            where
+                            powerXS = powerSet xs 
+#+end_src
+* Formas normales
+*** Negación
+El objetivo de esta forma normal es obtener una fórmula equivalente a una fórmula dada sin
+implicaciones, donde además los símbolos de negación solo afecten a fórmulas
+atómicas.
+#+begin_src haskell 
+-- Función que transforma una formula su forma normal de negación
+-- Precondición: no debe tener implicaciones.
+noImpNNF :: PL -> PL
+noImpNNF phi = case phi of
+  -- Casos base:
+  Top -> phi
+  Bot -> phi
+  Var v -> Var v
+  -- Casos recursivos:
+  Oneg alfa -> case alfa of
+    -- Casos bases (alfa)
+    Top -> Bot
+    Bot -> Top
+    Var v -> Oneg (Var v)
+    -- Casos recursivos (alfa)
+    Oneg g -> noImpNNF g
+    Oand g h -> noImpNNF (Oor (Oneg g) (Oneg h))
+    Oor g h -> noImpNNF (Oand (Oneg g) (Oneg h))
+
+  Oand alfa beta -> Oand (noImpNNF alfa) (noImpNNF beta)
+  Oor alfa beta -> Oor (noImpNNF alfa) (noImpNNF beta)
+
+-- Función que transforma una formula a su forma normal de negación.
+-- Precondición: ninguna.
+toNNF :: PL -> PL
+toNNF = noImpNNF . quitaImp -- Composicion de funciones.
+#+end_src
+*** Conjunción
+La llamada forma normal de conjunción permite expresar cualquier fórmula proposicional como
+una conjunción de disyunciones llamadas cláusulas.
+\[CNF         ::= <Clausula> | (<Clausula> \land CNF).\]
+\[<Clausula>  ::= \bot | <Literal>  | (<Literal> \lor <Clausula>)\]
+\[<Literal>   ::= <Variable> | \neg \<Variable>\]
+\[<Variable>  ::= v <Indice>\]
+\[<Indice>    ::= i,  i \in \mathbb{N}\]
+
+
+

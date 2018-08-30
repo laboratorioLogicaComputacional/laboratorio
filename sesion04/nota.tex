@@ -1,0 +1,239 @@
+% Created 2018-08-30 Thu 13:23
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+}
+\date{}
+\title{Sesión de laboratorio 04 \\
+Lógica Computacional}
+\hypersetup{
+ pdfauthor={Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+},
+ pdftitle={Sesión de laboratorio 04 \\
+Lógica Computacional},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 24.5.1 (Org mode 9.1.2)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\section{Solución práctica urgente 1}
+\label{sec:orgc7733af}
+Veremos una solución de la práctica urgente 1
+\subsection{Definición de Lógica Proposicional en Haskell.}
+\label{sec:orgddf4fc3}
+\begin{verbatim}
+type Indice = Int
+data PL =  Top | Bot | Var Indice -- Casos base
+--Casos recursivos
+| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL 
+\end{verbatim}
+\subsection{Quita Implicaciones}
+\label{sec:org02100b4}
+\begin{verbatim}
+-- Función que quita implicaciones de una formula
+quitaImp :: PL -> PL
+quitaImp phi = case phi of
+ Top -> Top
+ Bot -> Bot
+ Var x -> Var x
+ Oneg x -> Oneg (quitaImp x)
+ Oand x y -> Oand (quitaImp x) (quitaImp y)
+ Oor x y -> Oor (quitaImp x) (quitaImp y)
+ Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
+\end{verbatim}
+\subsection{Número de ocurrencias de variables}
+\label{sec:org6986fea}
+\begin{verbatim}
+-- Función que cuenta las ocurrencias de variables en una formula
+numOcurVar :: PL -> Int
+numOcurVar phi = case phi of
+ Top -> 0
+ Bot -> 0
+ Var _ -> 1
+ Oneg alfa -> numOcurVar alfa
+ Oand alfa beta -> numOcurVar alfa + numOcurVar beta
+ Oor alfa beta -> numOcurVar alfa + numOcurVar beta
+ Oimp  alfa beta -> numOcurVar alfa + numOcurVar beta
+\end{verbatim}
+\subsection{Compara número de ocurrencias}
+\label{sec:orgb68a7f5}
+\begin{verbatim}
+-- Función que compara el número de ocurrencias de variables de una
+-- formula y su forma normal de negación
+compOcurVar :: PL -> Bool
+compOcurVar phi = numOcurVar phi == (numOcurVar $ quitaImp phi)
+\end{verbatim}
+\section{\LaTeX{}}
+\label{sec:orgc32527f}
+\subsection{Introducción}
+\label{sec:org060e55d}
+\LaTeX{} es un sistema de composición de textos, orientados a la creación de documentos escritos que presentan una alta calidad tipográfica.
+\LaTeX{} presupone una filosofía de trabajo diferente a la de los procesadores de texto habituales (conocidos como WYSIWYG, es decir, «lo que ves es lo que obtienes») y se basa en instrucciones. 
+El modo en que \LaTeX{} interpreta la «forma» que debe tener el documento es mediante etiquetas. Por ejemplo, documentclass\{article\} le dice a \LaTeX{} que el documento que va a procesar es un artículo.
+Después de haber creado un archivo de texto plano hay que compilarlo para que nos de el PDF.
+Los reportes de las prácticas de laboratorio se entregarán en \LaTeX{}.
+\subsection{Uso}
+\label{sec:orgc6fbe7d}
+Pueden obtener \LaTeX{} en la siguiente dirección \url{https://www.latex-project.org/get/}
+O pueden utilizar \url{https://www.overleaf.com} el cual te deja editar archivos, 
+visualizarlos en el instante y  pueden editarlo entre varias personas.
+\subsection{Ejemplo}
+\label{sec:orgb3ffe84}
+\begin{verbatim}
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\author{Hambone Fakenamington \\
+Carla Mercedes Benz-Brown}
+\title{Reporte Práctica XX \\
+Lógica Computacional}
+\date{}
+\begin{document}
+\maketitle
+\section{Secciones y subsecciones}
+\subsection Listas
+\begin{itemize}
+\item Uno
+\item Two
+\item Trois
+\end{itemize}
+\subsection{Enumeraciones}
+\begin{enumerate}
+\item Premier
+\item Second
+\item Tercero
+\begin{itemize}
+\item A
+\item B
+\item C
+\end{itemize}
+\end{enumerate}
+\subsection{Formulas matemáticas}
+Para escribirlas sobre la linea de texto es entre dos \$ \\
+La formula $p$ esta en forma... \\
+Para resaltarlas se escribe entre corchetes de la siguiente manera
+\[ \prod_{i=a}^{b} f(i) \]
+\end{document}
+\end{verbatim}
+\section{Implementación de la semántica}
+\label{sec:orgc3ce0f0}
+\subsection{Valuaciones}
+\label{sec:orgdcc4f67}
+\begin{itemize}
+\item Def. Decimos que \(\sigma\) es una valuación si \(\sigma: X \rightarrow {0,1}\) y \(\emptyset \neq X \subseteq Var\).
+En particular, si \(\sigma: Var \rightarrow {0,1}\)
+\end{itemize}
+\begin{verbatim}
+type Valuacion = Indice -> Bool
+\end{verbatim}
+\begin{itemize}
+\item Def. Sean \(\sigma: Var \rightarrow {0,1}\) una valuación  y \(\phi \in PL\).
+\end{itemize}
+Definimos la relación  \(\sigma \models \phi\), usando recursión  sobre la estructura de \(\phi\)
+\begin{verbatim}
+satPL :: Valuacion -> PL -> Bool
+
+\end{verbatim}
+\subsection{Modelos}
+\label{sec:org16176a5}
+\begin{itemize}
+\item Def. m es un modelo si \(m \subseteq Var\).
+\end{itemize}
+satMod m phi = True sii \(m \models \varphi\)
+\begin{verbatim}
+type Modelo = [Indice]
+\end{verbatim}
+\begin{itemize}
+\item Def. Sean m un modelo y \(\phi \in PL\).
+\end{itemize}
+Definimos la relación  \(m \models \phi\), usando recursión  sobre la estructura de \(\phi\)
+\begin{verbatim}
+satMod :: Modelo -> PL -> Bool
+
+\end{verbatim}
+\subsection{Modelo a Valuacion}
+\label{sec:orgce5403f}
+\begin{verbatim}
+modeloToValuacion :: Modelo -> Valuacion
+modeloToValuacion m = sigma_m
+    where
+    sigma_m :: Valuacion
+    sigma_m v = elem v m
+\end{verbatim}
+¿Qué resultado se espera de satMod \(\sigma\) \(\phi\) == satPL \(\sigma\) (toNNF \(\phi\))?
+\subsection{Potencia}
+\label{sec:orga1dfaeb}
+\begin{verbatim}
+powerSet :: [t] -> [[t]]
+powerSet l  = case l of
+                   []   -> [[]]
+                   x:xs -> powerXS ++ [x:w | w <- powerXS]
+                            where
+                            powerXS = powerSet xs 
+\end{verbatim}
+\section{Formas normales}
+\label{sec:org5b271e9}
+\subsubsection{Negación}
+\label{sec:org1f5b742}
+El objetivo de esta forma normal es obtener una fórmula equivalente a una fórmula dada sin
+implicaciones, donde además los símbolos de negación solo afecten a fórmulas
+atómicas.
+\begin{verbatim}
+-- Función que transforma una formula su forma normal de negación
+-- Precondición: no debe tener implicaciones.
+noImpNNF :: PL -> PL
+noImpNNF phi = case phi of
+  -- Casos base:
+  Top -> phi
+  Bot -> phi
+  Var v -> Var v
+  -- Casos recursivos:
+  Oneg alfa -> case alfa of
+    -- Casos bases (alfa)
+    Top -> Bot
+    Bot -> Top
+    Var v -> Oneg (Var v)
+    -- Casos recursivos (alfa)
+    Oneg g -> noImpNNF g
+    Oand g h -> noImpNNF (Oor (Oneg g) (Oneg h))
+    Oor g h -> noImpNNF (Oand (Oneg g) (Oneg h))
+
+  Oand alfa beta -> Oand (noImpNNF alfa) (noImpNNF beta)
+  Oor alfa beta -> Oor (noImpNNF alfa) (noImpNNF beta)
+
+-- Función que transforma una formula a su forma normal de negación.
+-- Precondición: ninguna.
+toNNF :: PL -> PL
+toNNF = noImpNNF . quitaImp -- Composicion de funciones.
+\end{verbatim}
+\subsubsection{Conjunción}
+\label{sec:org35b60d1}
+La llamada forma normal de conjunción permite expresar cualquier fórmula proposicional como
+una conjunción de disyunciones llamadas cláusulas.
+\[CNF         ::= <Clausula> | (<Clausula> \land CNF).\]
+\[<Clausula>  ::= \bot | <Literal>  | (<Literal> \lor <Clausula>)\]
+\[<Literal>   ::= <Variable> | \neg \<Variable>\]
+\[<Variable>  ::= v <Indice>\]
+\[<Indice>    ::= i,  i \in \mathbb{N}\]
+\end{document}
