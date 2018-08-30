@@ -63,7 +63,7 @@ Pueden obtener \LaTeX{} en la siguiente dirección https://www.latex-project.org
 O pueden utilizar https://www.overleaf.com el cual te deja editar archivos, 
 visualizarlos en el instante y  pueden editarlo entre varias personas.
 ** Ejemplo
-#+begin_src 
+#+begin_src latex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
@@ -110,7 +110,14 @@ type Valuacion = Indice -> Bool
  Definimos la relación  $\sigma \models \phi$, usando recursión  sobre la estructura de \phi
 #+begin_src haskell
 satPL :: Valuacion -> PL -> Bool
-
+satPL valor phi = case phi of
+ Top -> True
+ Bot -> False
+ Var p -> (valor p)
+ Oneg p -> Not(satPL p)
+ Oand p q -> (satPL p) && (satPL q)
+ Oor p q -> (satPL p) || (satPL q)
+ Oimp p q -> Not(satPL p) || (satPL q)
 #+end_src
 ** Modelos
  * Def. m es un modelo si $m \subseteq Var$.
@@ -122,7 +129,14 @@ type Modelo = [Indice]
  Definimos la relación  $m \models \phi$, usando recursión  sobre la estructura de \phi
 #+begin_src haskell
 satMod :: Modelo -> PL -> Bool
-
+satMod m phi = case phi of
+ Top -> True
+ Bot -> False
+ Var p -> elem p m
+ Oneg p -> Not(satMod p)
+ Oand p q -> (satMod p) && (satMod q)
+ Oor p q -> (satMod p) || (satMod q)
+ Oimp p q -> Not(satMod p) || (satMod q)
 #+end_src
 ** Modelo a Valuacion
 #+begin_src haskell
@@ -132,7 +146,7 @@ modeloToValuacion m = sigma_m
     sigma_m :: Valuacion
     sigma_m v = elem v m
 #+end_src
- ¿Qué resultado se espera de satMod \sigma \phi == satPL \sigma (toNNF \phi)?
+ ¿Qué resultado se espera de satPL \sigma \phi == satPL \sigma (toNNF \phi)?
 ** Potencia
 #+begin_src haskell
 powerSet :: [t] -> [[t]]
@@ -184,5 +198,16 @@ una conjunción de disyunciones llamadas cláusulas.
 \[<Variable>  ::= v <Indice>\]
 \[<Indice>    ::= i,  i \in \mathbb{N}\]
 
-
+**** Función de distribución
+#+begin_src haskell
+dist :: PL -> PL
+dist alfa = case alfa of
+ Top -> Top
+ Bot -> Bot
+ Var v -> Var v
+ Onot alfa -> Onot(dist alfa)
+ OAnd alfa Oor beta1 beta2 -> OAnd(Oor dist(alfa)dist(beta1))(Oor dist(alfa) dist(beta2))
+ Oor alfa Oand beta1 beta2 -> Oor(OAnd dist(alfa)dist(beta1))(OAnd dist(alfa) dist(beta2))
+ p -> p
+#+end_src
 
