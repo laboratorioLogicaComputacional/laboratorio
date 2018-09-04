@@ -1,4 +1,4 @@
-% Created 2018-08-30 Thu 13:23
+% Created 2018-09-03 Mon 19:52
 % Intended LaTeX compiler: pdflatex
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -38,18 +38,18 @@ Lógica Computacional},
 
 \maketitle
 \section{Solución práctica urgente 1}
-\label{sec:orgc7733af}
+\label{sec:org11e3858}
 Veremos una solución de la práctica urgente 1
 \subsection{Definición de Lógica Proposicional en Haskell.}
-\label{sec:orgddf4fc3}
+\label{sec:orgd4aa38d}
 \begin{verbatim}
 type Indice = Int
 data PL =  Top | Bot | Var Indice -- Casos base
 --Casos recursivos
-| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL 
+| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL deriving (Eq, Show)
 \end{verbatim}
 \subsection{Quita Implicaciones}
-\label{sec:org02100b4}
+\label{sec:org99dd40e}
 \begin{verbatim}
 -- Función que quita implicaciones de una formula
 quitaImp :: PL -> PL
@@ -63,7 +63,7 @@ quitaImp phi = case phi of
  Oimp x y -> Oor (quitaImp (Oneg  x)) (quitaImp y)
 \end{verbatim}
 \subsection{Número de ocurrencias de variables}
-\label{sec:org6986fea}
+\label{sec:org62bf225}
 \begin{verbatim}
 -- Función que cuenta las ocurrencias de variables en una formula
 numOcurVar :: PL -> Int
@@ -77,7 +77,7 @@ numOcurVar phi = case phi of
  Oimp  alfa beta -> numOcurVar alfa + numOcurVar beta
 \end{verbatim}
 \subsection{Compara número de ocurrencias}
-\label{sec:orgb68a7f5}
+\label{sec:org8ba5518}
 \begin{verbatim}
 -- Función que compara el número de ocurrencias de variables de una
 -- formula y su forma normal de negación
@@ -85,21 +85,21 @@ compOcurVar :: PL -> Bool
 compOcurVar phi = numOcurVar phi == (numOcurVar $ quitaImp phi)
 \end{verbatim}
 \section{\LaTeX{}}
-\label{sec:orgc32527f}
+\label{sec:org5f3d16c}
 \subsection{Introducción}
-\label{sec:org060e55d}
+\label{sec:org9f532b1}
 \LaTeX{} es un sistema de composición de textos, orientados a la creación de documentos escritos que presentan una alta calidad tipográfica.
 \LaTeX{} presupone una filosofía de trabajo diferente a la de los procesadores de texto habituales (conocidos como WYSIWYG, es decir, «lo que ves es lo que obtienes») y se basa en instrucciones. 
 El modo en que \LaTeX{} interpreta la «forma» que debe tener el documento es mediante etiquetas. Por ejemplo, documentclass\{article\} le dice a \LaTeX{} que el documento que va a procesar es un artículo.
 Después de haber creado un archivo de texto plano hay que compilarlo para que nos de el PDF.
 Los reportes de las prácticas de laboratorio se entregarán en \LaTeX{}.
 \subsection{Uso}
-\label{sec:orgc6fbe7d}
+\label{sec:org2b4f564}
 Pueden obtener \LaTeX{} en la siguiente dirección \url{https://www.latex-project.org/get/}
 O pueden utilizar \url{https://www.overleaf.com} el cual te deja editar archivos, 
 visualizarlos en el instante y  pueden editarlo entre varias personas.
 \subsection{Ejemplo}
-\label{sec:orgb3ffe84}
+\label{sec:orgf2f1705}
 \begin{verbatim}
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
@@ -137,9 +137,9 @@ Para resaltarlas se escribe entre corchetes de la siguiente manera
 \end{document}
 \end{verbatim}
 \section{Implementación de la semántica}
-\label{sec:orgc3ce0f0}
+\label{sec:org72dfb6f}
 \subsection{Valuaciones}
-\label{sec:orgdcc4f67}
+\label{sec:org2ce28f4}
 \begin{itemize}
 \item Def. Decimos que \(\sigma\) es una valuación si \(\sigma: X \rightarrow {0,1}\) y \(\emptyset \neq X \subseteq Var\).
 En particular, si \(\sigma: Var \rightarrow {0,1}\)
@@ -153,10 +153,17 @@ type Valuacion = Indice -> Bool
 Definimos la relación  \(\sigma \models \phi\), usando recursión  sobre la estructura de \(\phi\)
 \begin{verbatim}
 satPL :: Valuacion -> PL -> Bool
-
+satPL valor phi = case phi of
+ Top -> True
+ Bot -> False
+ Var p -> (valor p)
+ Oneg p -> Not(satPL p)
+ Oand p q -> (satPL p) && (satPL q)
+ Oor p q -> (satPL p) || (satPL q)
+ Oimp p q -> Not(satPL p) || (satPL q)
 \end{verbatim}
 \subsection{Modelos}
-\label{sec:org16176a5}
+\label{sec:org3422d76}
 \begin{itemize}
 \item Def. m es un modelo si \(m \subseteq Var\).
 \end{itemize}
@@ -170,10 +177,17 @@ type Modelo = [Indice]
 Definimos la relación  \(m \models \phi\), usando recursión  sobre la estructura de \(\phi\)
 \begin{verbatim}
 satMod :: Modelo -> PL -> Bool
-
+satMod m phi = case phi of
+ Top -> True
+ Bot -> False
+ Var p -> elem p m
+ Oneg p -> Not(satMod p)
+ Oand p q -> (satMod p) && (satMod q)
+ Oor p q -> (satMod p) || (satMod q)
+ Oimp p q -> Not(satMod p) || (satMod q)
 \end{verbatim}
 \subsection{Modelo a Valuacion}
-\label{sec:orgce5403f}
+\label{sec:org458a412}
 \begin{verbatim}
 modeloToValuacion :: Modelo -> Valuacion
 modeloToValuacion m = sigma_m
@@ -181,9 +195,9 @@ modeloToValuacion m = sigma_m
     sigma_m :: Valuacion
     sigma_m v = elem v m
 \end{verbatim}
-¿Qué resultado se espera de satMod \(\sigma\) \(\phi\) == satPL \(\sigma\) (toNNF \(\phi\))?
-\subsection{Potencia}
-\label{sec:orga1dfaeb}
+¿Qué resultado se espera de satPL \(\sigma\) \(\phi\) == satPL \(\sigma\) (toNNF \(\phi\))?
+\subsection{Potencia de conjuntos}
+\label{sec:org6d26c6f}
 \begin{verbatim}
 powerSet :: [t] -> [[t]]
 powerSet l  = case l of
@@ -193,9 +207,9 @@ powerSet l  = case l of
                             powerXS = powerSet xs 
 \end{verbatim}
 \section{Formas normales}
-\label{sec:org5b271e9}
+\label{sec:org0e76958}
 \subsubsection{Negación}
-\label{sec:org1f5b742}
+\label{sec:org51637a6}
 El objetivo de esta forma normal es obtener una fórmula equivalente a una fórmula dada sin
 implicaciones, donde además los símbolos de negación solo afecten a fórmulas
 atómicas.
@@ -228,7 +242,7 @@ toNNF :: PL -> PL
 toNNF = noImpNNF . quitaImp -- Composicion de funciones.
 \end{verbatim}
 \subsubsection{Conjunción}
-\label{sec:org35b60d1}
+\label{sec:org9fd0271}
 La llamada forma normal de conjunción permite expresar cualquier fórmula proposicional como
 una conjunción de disyunciones llamadas cláusulas.
 \[CNF         ::= <Clausula> | (<Clausula> \land CNF).\]
@@ -236,4 +250,21 @@ una conjunción de disyunciones llamadas cláusulas.
 \[<Literal>   ::= <Variable> | \neg \<Variable>\]
 \[<Variable>  ::= v <Indice>\]
 \[<Indice>    ::= i,  i \in \mathbb{N}\]
+
+\begin{enumerate}
+\item Es clausula
+\label{sec:org139870c}
+Función que nos indica si una fórmula tiene la forma de una clausula.
+\begin{verbatim}
+esClausula :: PL -> Bool
+esClausula phi = case phi of
+  Bot -> True
+  Var _ -> True
+  Oneg alfa -> case alfa of
+    Var _ -> True
+    _ -> False
+  Oor alfa beta -> esClausula alfa && esClausula beta
+  _ -> False
+\end{verbatim}
+\end{enumerate}
 \end{document}

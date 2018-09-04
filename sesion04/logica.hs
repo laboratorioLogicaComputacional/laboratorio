@@ -142,11 +142,36 @@ satMod m phi = case phi of
   Oor alfa beta -> (satMod m alfa) || (satMod m beta)
   Oimp alfa beta -> satMod m (Oor (Oneg alfa) beta)
 
+esClausula :: PL -> Bool
+esClausula phi = case phi of
+  Bot -> True
+  Var _ -> True
+  Oneg alfa -> case alfa of
+    Var _ -> True
+    _ -> False
+  Oor alfa beta -> esClausula alfa && esClausula beta
+  _ -> False
+
+esCNF :: PL -> Bool
+esCNF phi = case phi of
+  Oand alfa beta -> esCNF alfa && esCNF beta
+  p -> esClausula p
+
 dist :: PL -> PL
 dist phi = case phi of
+ Top -> Top
+ Bot -> Bot
+ Var v -> Var v
+ Oneg alfa -> Oneg $ dist alfa
+ Oand alfa beta -> Oand (dist alfa) (dist beta)
+ Oor alfa (Oand beta1 beta2) -> Oand (dist $ Oor (dist alfa) (dist beta1)) (dist $ Oor (dist alfa) (dist beta2))
+ Oor (Oand alfa1 alfa2) beta -> Oand (dist $ Oor (dist alfa1) (dist beta)) (dist $ Oor (dist alfa2) (dist beta))
+ Oor alfa beta -> Oor (dist alfa) (dist beta)
+ Oimp alfa beta -> Oimp (dist alfa) (dist beta)
+  {-
   Oor alfa (Oand beta1 beta2) -> Oand (dist $ Oor (dist alfa) (dist beta1)) (dist $ Oor (dist alfa) (dist beta2))
   Oor (Oand alfa1 alfa2) beta -> Oand (dist $ Oor (dist alfa1) (dist beta)) (dist $ Oor (dist alfa2) (dist beta))
-  p -> p
+  p -> p -}
 
 
 powerSet :: [t] -> [[t]]

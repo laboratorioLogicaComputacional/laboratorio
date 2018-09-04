@@ -16,7 +16,7 @@ Veremos una solución de la práctica urgente 1
 type Indice = Int
 data PL =  Top | Bot | Var Indice -- Casos base
 --Casos recursivos
-| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL 
+| Oneg PL | Oand PL PL | Oor PL PL | Oimp PL PL deriving (Eq, Show)
 #+end_src
 ** Quita Implicaciones
 #+begin_src haskell
@@ -63,7 +63,7 @@ Pueden obtener \LaTeX{} en la siguiente dirección https://www.latex-project.org
 O pueden utilizar https://www.overleaf.com el cual te deja editar archivos, 
 visualizarlos en el instante y  pueden editarlo entre varias personas.
 ** Ejemplo
-#+begin_src latex
+#+begin_src
 \documentclass[11pt]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[spanish]{babel}
@@ -147,7 +147,7 @@ modeloToValuacion m = sigma_m
     sigma_m v = elem v m
 #+end_src
  ¿Qué resultado se espera de satPL \sigma \phi == satPL \sigma (toNNF \phi)?
-** Potencia
+** Potencia de conjuntos
 #+begin_src haskell
 powerSet :: [t] -> [[t]]
 powerSet l  = case l of
@@ -198,16 +198,17 @@ una conjunción de disyunciones llamadas cláusulas.
 \[<Variable>  ::= v <Indice>\]
 \[<Indice>    ::= i,  i \in \mathbb{N}\]
 
-**** Función de distribución
+**** Es clausula
+Función que nos indica si una fórmula tiene la forma de una clausula.
 #+begin_src haskell
-dist :: PL -> PL
-dist alfa = case alfa of
- Top -> Top
- Bot -> Bot
- Var v -> Var v
- Onot alfa -> Onot(dist alfa)
- OAnd alfa Oor beta1 beta2 -> OAnd(Oor dist(alfa)dist(beta1))(Oor dist(alfa) dist(beta2))
- Oor alfa Oand beta1 beta2 -> Oor(OAnd dist(alfa)dist(beta1))(OAnd dist(alfa) dist(beta2))
- p -> p
+esClausula :: PL -> Bool
+esClausula phi = case phi of
+  Bot -> True
+  Var _ -> True
+  Oneg alfa -> case alfa of
+    Var _ -> True
+    _ -> False
+  Oor alfa beta -> esClausula alfa && esClausula beta
+  _ -> False
 #+end_src
 
