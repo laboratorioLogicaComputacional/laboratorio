@@ -1,0 +1,32 @@
+#+LATEX_CLASS: article
+#+LANGUAGE: es
+#+LATEX_HEADER: \usepackage[AUTO]{babel}
+#+LATEX_HEADER: \usepackage{fancyvrb}
+#+OPTIONS: toc:nil
+#+DATE:
+#+AUTHOR: Dr. Miguel Carrillo Barajas \\
+#+AUTHOR: Estefanía Prieto Larios \\
+#+AUTHOR: Mauricio Esquivel Reyes \\
+#+TITLE: Sesión de laboratorio 05 \\
+#+TITLE: Lógica Computacional
+* Formulas de Horn
+La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notación BNF como sigue.
+
+HORN                ::= <ClausulaDeHorn> | <ClausulaDeHorn> /\ HORN.
+<ClausulaDeHorn>    ::= (<Premisa> -> <Conclusion>)
+<Premisa>           ::= <Atom> | (<Atom> /\ <Premisa>)
+<Conclusion>        ::= <Atom>
+<Atom>              ::= \bot | \top | <Variable>
+<Variable>          ::= v <Indice>
+<Indice>            ::= i, con i \in \mathbb{N}.
+
+Una formula de Horn es "una conjunción de clausulas de Horn".
+Una clausula de Horn es "una implicación cuya premisa es una conjuncion de 
+átomos (\bot,\top,v_i) y cuya conclusión es un átomo".
+
+#+begin_src haskell
+data Hatom  =  Htop | Hbot | Hvar Indice deriving (Eq) -- Atomos para clausulas de Horn
+data Fhorn  =   Himp [Hatom] Hatom                      -- Clausula de Horn: Premisa=[atomo1,...,atomoN] -> Conclusion=Atomo
+              | Hand Fhorn Fhorn  deriving (Eq, Show)   -- Conjuncion de formulas de Horn
+#+end_src
+
