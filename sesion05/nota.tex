@@ -1,17 +1,47 @@
-#+LATEX_CLASS: article
-#+LANGUAGE: es
-#+LATEX_HEADER: \usepackage[AUTO]{babel}
-#+LATEX_HEADER: \usepackage{fancyvrb}
-#+OPTIONS: toc:nil
-#+DATE:
-#+AUTHOR: Dr. Miguel Carrillo Barajas \\
-#+AUTHOR: Estefanía Prieto Larios \\
-#+AUTHOR: Mauricio Esquivel Reyes \\
-#+TITLE: Sesión de laboratorio 05 \\
-#+TITLE: Lógica Computacional
-* Solución de la práctica
+% Created 2018-09-26 mié 12:59
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+}
+\date{}
+\title{Sesión de laboratorio 05 \\
+Lógica Computacional}
+\hypersetup{
+ pdfauthor={Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+},
+ pdftitle={Sesión de laboratorio 05 \\
+Lógica Computacional},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.3.2 (Org mode 9.1.14)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\section{Solución de la práctica}
+\label{sec:org808f0fe}
 Se adjunta un archivo con el nombre p01.hs que contiene la solución de la primera práctica.
-* Formulas de Horn
+\section{Formulas de Horn}
+\label{sec:org4fe9465}
 La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notación BNF como sigue.
 
 \[HORN                ::= <ClausulaDeHorn> | <ClausulaDeHorn> \land HORN.\]
@@ -24,39 +54,42 @@ La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notac
 
 Una formula de Horn es una conjunción de clausulas de Horn.
 Una clausula de Horn es una implicación cuya premisa es una conjuncion de 
-átomos (\bot,\top,v_i) y cuya conclusión es un átomo.
+átomos (\bot,\top,v\(_{\text{i}}\)) y cuya conclusión es un átomo.
 
-#+begin_src haskell
+\begin{verbatim}
 -- Atomos para clausulas de Horn
 data Hatom  =  Htop | Hbot | Hvar Indice deriving (Eq) 
 -- Clausula de Horn: Premisa=[atomo1,...,atomoN] -> Conclusion=Atomo
 data Fhorn  =   Himp [Hatom] Hatom                     
  -- Conjuncion de formulas de Horn 
               | Hand Fhorn Fhorn  deriving (Eq, Show)  
-#+end_src
+\end{verbatim}
 
-** Atomos marcados
+\subsection{Atomos marcados}
+\label{sec:org65143c1}
 Nos regresa True si todos los atomos de una premisa estan marcados. False en otro caso
-#+begin_src haskell
+\begin{verbatim}
 atomosMarcados :: [Hatom] -> [Hatom] -> Bool
 atomosMarcados lm premisa = and [a `elem` lm | a <- premisa] 
-#+end_src
+\end{verbatim}
 
-** Marca conclusiones 
+\subsection{Marca conclusiones}
+\label{sec:orga991cc6}
 Agrega las conclusiones de una lista de clausulas de Horn a una lista de atomos marcados.
-#+begin_src haskell
+\begin{verbatim}
 marcaConclusiones :: [Hatom] -> [Fhorn] -> [Hatom]
 marcaConclusiones lMarcados lcH = case lcH of
  [] -> lMarcados
  (Himp _ c):cHs -> marcaConclusiones (c:lMarcados) cHs
  _  -> error $ "marcaConclusiones: no es una clausula de Horn: "++show (head lcH)
-#+end_src
+\end{verbatim}
 
-** Clausulas marcables 
+\subsection{Clausulas marcables}
+\label{sec:org580102b}
 Regresa la lista de clausulas de phi que tienen una conclusión marcable.
-Def. $f$ es una clausula con conclusión marcable si: $f = p \rightarrow c$, los atomos de $p$ están marcados, y $c$ no está marcada.
+Def. \(f\) es una clausula con conclusión marcable si: \(f = p \rightarrow c\), los atomos de \(p\) están marcados, y \(c\) no está marcada.
 
-#+begin_src haskell
+\begin{verbatim}
 clausulasHmarcables :: [Hatom] -> Fhorn -> [Fhorn]
 clausulasHmarcables lMarcados phi = case phi of
  Himp premisa conclusion -> if (atomosMarcados lMarcados premisa) && 
@@ -64,4 +97,5 @@ clausulasHmarcables lMarcados phi = case phi of
   then [phi]
   else []
  Hand f1 f2 -> clausulasHmarcables lMarcados f1 ++ clausulasHmarcables lMarcados f2
-#+end_src
+\end{verbatim}
+\end{document}
