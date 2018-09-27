@@ -134,7 +134,7 @@ toCNF phi = case phi of
 cnf :: PL -> PL
 cnf = toCNF . toNNF
 
-
+-- Material para la sesion 06
 
 -- Conjunto de variables (solo indices) de una formula.
 varsOf :: PL -> [Indice]
@@ -158,7 +158,8 @@ listClau phi = case phi of
 liteCNF :: PL -> [[Indice]]
 liteCNF phi = if esCNF phi then
   (map varsOf (listClau phi))
- else
+  else
+  error $ "valCNF: no esta en CNF"  else
   error $ "liteCNF: No esta en CNF"
 
 listTerm :: PL -> [PL]
@@ -171,3 +172,19 @@ liteDNF phi = if esDNF phi then
   (map varsOf (listTerm phi))
  else
   error $ "liteDNF: No esta en DNF"
+
+comple :: [Indice] -> Bool
+comple ls = case ls of
+  [] -> False
+  x:xs -> if elem (-x) xs then True  else comple xs
+
+valCNF :: PL -> Bool
+valCNF phi = if esCNF phi then
+  and (map comple (liteCNF phi))
+  else
+  error $ "valCNF: no esta en CNF"
+
+satDNF phi = if esDNF phi then
+  not(and (map comple (liteDNF phi)))
+  else
+  error $ "satDNF: no esta en DNF"

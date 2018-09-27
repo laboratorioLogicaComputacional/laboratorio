@@ -9,7 +9,8 @@
 #+AUTHOR: Mauricio Esquivel Reyes \\
 #+TITLE: Sesión de laboratorio 06 \\
 #+TITLE: Lógica Computacional
-* 
+* Formas normales 
+
 * Formulas de Horn
 La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notación BNF como sigue.
 
@@ -33,14 +34,12 @@ data Fhorn  =   Himp [Hatom] Hatom
  -- Conjuncion de formulas de Horn 
               | Hand Fhorn Fhorn  deriving (Eq, Show)  
 #+end_src
-
 ** Atomos marcados
 Nos regresa True si todos los atomos de una premisa estan marcados. False en otro caso
 #+begin_src haskell
 atomosMarcados :: [Hatom] -> [Hatom] -> Bool
 atomosMarcados lm premisa = and [a `elem` lm | a <- premisa] 
 #+end_src
-
 ** Marca conclusiones 
 Agrega las conclusiones de una lista de clausulas de Horn a una lista de atomos marcados.
 #+begin_src haskell
@@ -50,11 +49,9 @@ marcaConclusiones lMarcados lcH = case lcH of
  (Himp _ c):cHs -> marcaConclusiones (c:lMarcados) cHs
  _  -> error $ "marcaConclusiones: no es una clausula de Horn: "++show (head lcH)
 #+end_src
-
 ** Clausulas marcables 
 Regresa la lista de clausulas de phi que tienen una conclusión marcable.
 Def. $f$ es una clausula con conclusión marcable si: $f = p \rightarrow c$, los atomos de $p$ están marcados, y $c$ no está marcada.
-
 #+begin_src haskell
 clausulasHmarcables :: [Hatom] -> Fhorn -> [Fhorn]
 clausulasHmarcables lMarcados phi = case phi of
