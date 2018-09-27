@@ -10,61 +10,91 @@
 #+TITLE: Sesión de laboratorio 06 \\
 #+TITLE: Lógica Computacional
 * Formas normales 
-** Variables de una formula
+** Literales de una formula
 #+begin_src haskell
 -- Conjunto de variables (solo indices) de una formula.
 varsOf :: PL -> [Indice]
+varsOf Top = []
+varsOf Bot = []
+varsOf (Var p) = [p]
+varsOf (Oneg p) = case p of
+  Var n -> [-n]
+  _ -> varsOf p 
+varsOf (Oand p q) = nub $ (varsOf p) ++ (varsOf q)
+varsOf (Oor p q) = nub $ (varsOf p) ++ (varsOf q)
+varsOf (Oimp p q) = nub $ (varsOf p) ++ (varsOf q)
 #+end_src
 ** Formula valida
 #+begin_src haskell
 --Decide si phi es valida. True sii phi \in VAL-PL, i.e. para todo modelo m: m |= phi.
 enValPL :: PL -> Bool
+enValPL phi = and[satMod y phi |y<-powerSet(varsOf(phi))]
 #+end_src
 ** Formula satisfacible
 #+begin_src haskell
 --Decide si phi es satisfactible. True sii phi \in SAT-PL, i.e. existe un modelo m: m |= phi.
 enSatPL :: PL -> Bool
+enSatPl phi = or[satMod y phi | y<-powerSet(varsOf(phi))]
 #+end_src
 ** Lista de clausulas
 #+begin_src haskell
 -- Nos da la lista de clausulas de una formula
 -- Precondición: la formula debe estar en CNF
 listClau :: PL -> [PL]
+listClau phi = case phi of 
+  Oand alpha betha -> listClau alpha ++ listClau betha 
+  _-> [phi]
 #+end_src
 ** Lista de clausulas como lista de indices
 #+begin_src haskell
 -- Nos da las clasusulas de una formula en forma de listas de indices
 -- Precondición: la formula debe estar en CNF
 liteCNF :: PL -> [[Indice]]
+liteCNF phi = if esCNF(phi) then 
+  map varsOf (listClau phi)
+ else
+  error $ "No esta en CNF"
 #+end_src
 ** Lista de terminos
 #+begin_src haskell
 -- Nos da la lista de terminos de una formula
 -- Precondición: la formula debe estar en DNF
 listTerm :: PL -> [PL]
+listTerm phi = case phi of 
+  Oor alpha beta -> listTerm alpha ++ listTerm beta
+  _ -> [phi]
 #+end_src
 ** Lista de terminos como lista de indices
 #+begin_src haskell
 -- Nos da los terminos de una formula en forma de lista de indices
 -- Precondición: la formula debe estar en DNF
 liteDNF :: PL -> [[Indice]]
+liteDNF phi = if esDNF(phi) then 
+  map varsOf (listTerm phi)
+ else
+  error $ "No esta en DNF"
 #+end_src
 ** Indices complementarios
 #+begin_src haskell
 -- Nos indica si en una lista de indices existen dos complementarios
 comple :: [Indice] -> Bool
+comple lst = case lst of
+  [] -> False
+  x:xs -> if elem (-x) xs then True else comple xs
 #+end_src
 ** CNF valida
 #+begin_src haskell
 -- Nos dice si una formula en CNF es valida
 -- Precondición: la formula debe estar en CNF
 valCNF :: PL -> Bool
+valCNF phi = and (map comple(liteCNF(phi)))
 #+end_src
 ** DNF satisfacible
 #+begin_src haskell
 -- Nos dice si una formula en DNF es satisfacible
 -- Precondición: la formula debe estar en DNF
-satDNF phi = if esDNF phi then
+satDNF phi = if esDNF phi then 
+satDNF phi = or (map not (map comple(liteDNF(phi)))
 #+end_src
 * Formulas de Horn
 La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notación BNF como sigue.

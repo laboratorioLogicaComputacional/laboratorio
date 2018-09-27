@@ -228,12 +228,6 @@ valCNF phi = if esCNF phi then
  else
   error $ "valCNF: no esta en CNF"
 
--- Nos dice si una formula en DNF es satisfacible
--- Precondición: la formula debe estar en DNF
-satDNF phi = if esDNF phi then
-  not (and (map comple (liteDNF phi)))
- else
-  error $ "satDNF: no esta en DNF"
 
 
 
@@ -253,6 +247,16 @@ enValPL phi = and [(satMod m phi) | m <- powerSet $ varsOf (phi) ]
 enSatPL :: PL -> Bool
 enSatPL phi = or [(satMod m phi) | m <- powerSet $ varsOf (phi) ]
 
+satDNF :: PL -> Bool
+satDNF phi = or (map not (map comple (liteDNF phi)))
+{-
+
+-- Nos dice si una formula en DNF es satisfacible
+-- Precondición: la formula debe estar en DNF
+satDNF phi = if esDNF phi then
+  not (and (map comple (liteDNF phi)))
+ else
+  error $ "satDNF: no esta en DNF"
 
 -- Tipos de datos para formulas de Horn
 data Hatom  =  Htop | Hbot | Hvar Indice deriving (Eq) -- Atomos para clausulas de Horn
@@ -282,3 +286,4 @@ enSatHorn :: Fhorn -> Bool
 enSatHorn phi = if Hbot `elem` (marcaFormulaHorn [Htop] phi)
                     then False
                     else True
+-}
