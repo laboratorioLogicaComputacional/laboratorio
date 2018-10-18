@@ -74,6 +74,19 @@ eqCon2 g f = case f of
               _ `Oand` f2   -> g == f2
               _             -> False
 --
+getDis1 :: PL -> PL
+--
+getDis1 g = case g of
+  f1 `Oor` _ -> f1
+  _ -> error $ "No es una disyuncion"
+--
+getDis2 :: PL -> PL
+--
+getDis2 g = case g of
+  _ `Oor`f2 -> f2
+  _ -> error $ "No es una disyuncion"
+--
+--
 eqDis1 :: PL -> PL -> Bool
 -- True si g es el disyunto 1 de f
 eqDis1 g f = case f of
@@ -162,15 +175,21 @@ checkPaso lprem lpp p = -- listaDePremisas listaDePasosPrevios pasoActual
                                             where 
                                             f1 = phiPasoNum i lpp
         (m,(f, Edis i j k, lc)) -> lpp /= []
-                                        && m==nN+1
+                                        && m == nN+1
                                         && usableP i lcN nN -- i es usable, i<nN && i no esta en una caja cerrada
                                         && usableP j lcN nN -- j es usable, j<nN && j no esta en una caja cerrada
                                         && usableP k lcN nN -- k es usable, k<nN && k no esta en una caja cerrada
                                         && lc == lcN -- las cajas no cambiaron
-                                        && a == fi
-                                        && b == si
-                                        && f == sj && f == sk
+                                        && a `eqDis1` fi
+                                        && b `eqDis2` fi
+                                        && a `eqImp1` fj && b `eqImp1` fk
+                                        && f `eqImp2` fj && f `eqImp2` fk
                                             where
+                                              fi = phiPasoNum i lpp
+                                              fj = phiPasoNum j lpp
+                                              fk = phiPasoNum k lpp
+                                              a = getDis1 fi
+                                              b = getDis2 fi
                                             
         --Reglas para la implicacion:
         (m,(_ `Oimp` h,Iimp i j,lc)) -> lpp/=[]                  -- hay pasos previos
