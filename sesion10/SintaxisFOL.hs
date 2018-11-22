@@ -15,7 +15,7 @@ data Term =   Var Id            -- una variable
             deriving (Eq,Show,Ord,Read)
 --
 -- Formulas de FOL con igualdad, FOL^=:
-data FOL =    Bot | Top | Oimp FOL FOL | Oand FOL FOL | Oor FOL FOL | Oneg FOL -- False,True,Implicacion,Conjuncion,Dis,Negacion
+data FOL =    Bot | Top | Oimp FOL FOL | Oand FOL FOL | Oor FOL FOL | Oneg FOL   -- False,True,Implicacion,Conjuncion,Dis,Negacion
             | Pred Sym [Term]   -- Predicado:           simbolo de predicado aplicado a una lista de terminos
             | All Id FOL        -- Formula universal:   \forall x : phi 
             | Exi Id FOL        -- Formula existencial: \exists x : phi
@@ -103,6 +103,12 @@ varT t = case t of
   Var x -> [x]
   Fun _ [] -> []
   Fun n xs -> concat $ map varT xs
+{-
+ Var id = [id]
+ Fun s lt = case lt of
+       	    	 [] -> []
+		 x:xs  -> varT x ++ varT xs
+-}
 
 
 -- Variables libres en una Formula
@@ -118,6 +124,19 @@ fv phi = case phi of
   Exi x a -> elimn x (fv a)
   Top -> []
   Bot -> []
+{-
+ Top -> []
+ Bot -> []
+ Oand a b -> fv a ++ fv b
+ Oor a b -> fv a ++ fv b
+ Oneg a -> fv a
+ Oimp a b -> fv a ++ fv b
+ All a l -> elimn a (fv l)
+ Exi a l -> elimn a (fv l)
+ Equ (p,n) l -> varT l
+ Pred (p,n) l -> varT l
+-}
+
 
 
 -- Funcion que elimina el nombre de una variable en una lista de nombres de variables
@@ -125,3 +144,7 @@ elimn :: Id -> [Id] -> [Id]
 elimn i li = [ v | v <- li, v /= i]
 
 
+freeTerm :: Term -> Id -> FOL -> Bool
+freeTerm tb i phi = case phi of
+  All x a -> if elem x (VarT tb) then False else freeTerm tb i phi
+  Exi x a -> if elem x (VarT tb) then False else freeTerm tb i phi
