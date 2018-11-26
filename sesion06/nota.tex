@@ -1,0 +1,214 @@
+% Created 2018-10-01 lun 13:20
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\usepackage[spanish]{babel}
+\usepackage{fancyvrb}
+\author{Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+}
+\date{}
+\title{Sesión de laboratorio 06 \\
+Lógica Computacional}
+\hypersetup{
+ pdfauthor={Dr. Miguel Carrillo Barajas \\
+Estefanía Prieto Larios \\
+Mauricio Esquivel Reyes \\
+},
+ pdftitle={Sesión de laboratorio 06 \\
+Lógica Computacional},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 25.3.2 (Org mode 9.1.14)}, 
+ pdflang={Spanish}}
+\begin{document}
+
+\maketitle
+\section{Formas normales}
+\label{sec:org42b6a60}
+\subsection{Literales de una formula}
+\label{sec:orgd6aef05}
+Conjunto de variables (solo indices) de una formula.
+\begin{verbatim}
+varsOf :: PL -> [Indice]
+varsOf Top = []
+varsOf Bot = []
+varsOf (Var p) = [p]
+varsOf (Oneg p) = case p of
+  Var n -> [-n]
+  _ -> varsOf p 
+varsOf (Oand p q) = nub $ (varsOf p) ++ (varsOf q)
+varsOf (Oor p q) = nub $ (varsOf p) ++ (varsOf q)
+varsOf (Oimp p q) = nub $ (varsOf p) ++ (varsOf q)
+\end{verbatim}
+\subsection{Formula valida}
+\label{sec:orgd740ba2}
+Decide si \(\phi\) es valida.
+\begin{verbatim}
+enValPL :: PL -> Bool
+enValPL phi = and[satMod y phi |y <- powerSet(varsOf(phi))]
+\end{verbatim}
+\subsection{Formula satisfacible}
+\label{sec:orgf37a8ee}
+Decide si \(\phi\) es satisfactible.
+\begin{verbatim}
+enSatPL :: PL -> Bool
+enSatPl phi = or[satMod y phi | y <- powerSet(varsOf(phi))]
+\end{verbatim}
+\subsection{Lista de clausulas}
+\label{sec:org7fa4778}
+\begin{verbatim}
+-- Nos da la lista de clausulas de una formula
+-- Precondición: la formula debe estar en CNF
+listClau :: PL -> [PL]
+listClau phi = case phi of 
+  Oand alpha betha -> listClau alpha ++ listClau betha 
+  _-> [phi]
+\end{verbatim}
+\subsection{Lista de clausulas como lista de indices}
+\label{sec:orga98602b}
+\begin{verbatim}
+-- Nos da las clasusulas de una formula en forma de listas de indices
+-- Precondición: la formula debe estar en CNF
+liteCNF :: PL -> [[Indice]]
+liteCNF phi = if esCNF(phi) then 
+  map varsOf (listClau phi)
+ else
+  error $ "No esta en CNF"
+\end{verbatim}
+\subsection{Lista de terminos}
+\label{sec:orgc9dbfb1}
+\begin{verbatim}
+-- Nos da la lista de terminos de una formula
+-- Precondición: la formula debe estar en DNF
+listTerm :: PL -> [PL]
+listTerm phi = case phi of 
+  Oor alpha beta -> listTerm alpha ++ listTerm beta
+  _ -> [phi]
+\end{verbatim}
+\subsection{Lista de terminos como lista de indices}
+\label{sec:org8fae79e}
+\begin{verbatim}
+-- Nos da los terminos de una formula en forma de lista de indices
+-- Precondición: la formula debe estar en DNF
+liteDNF :: PL -> [[Indice]]
+liteDNF phi = if esDNF(phi) then 
+  map varsOf (listTerm phi)
+ else
+  error $ "No esta en DNF"
+\end{verbatim}
+\subsection{Indices complementarios}
+\label{sec:org9f30760}
+\begin{verbatim}
+-- Nos indica si en una lista de indices existen dos complementarios
+comple :: [Indice] -> Bool
+comple lst = case lst of
+  [] -> False
+  x:xs -> if elem (-x) xs then True else comple xs
+\end{verbatim}
+\subsection{CNF valida}
+\label{sec:org795663c}
+\begin{verbatim}
+-- Nos dice si una formula en CNF es valida
+-- Precondición: la formula debe estar en CNF
+valCNF :: PL -> Bool
+valCNF phi = and (map comple(liteCNF(phi)))
+\end{verbatim}
+\subsection{DNF satisfacible}
+\label{sec:org7c64f2f}
+\begin{verbatim}
+-- Nos dice si una formula en DNF es satisfacible
+-- Precondición: la formula debe estar en DNF
+satDNF phi = if esDNF phi then 
+satDNF phi = or (map not (map comple (liteDNF(phi)))
+\end{verbatim}
+\section{Formulas de Horn}
+\label{sec:org6b1790e}
+La sintaxis de las formulas (proposicionales) de Horn, HORN, se define con notación BNF como sigue.
+
+\[HORN                ::= <ClausulaDeHorn> | <ClausulaDeHorn> \land HORN.\]
+\[<ClausulaDeHorn>    ::= (<Premisa> \rightarrow <Conclusion>)\]
+\[<Premisa>           ::= <Atom> | (<Atom> \land <Premisa>)\]
+\[<Conclusion>        ::= <Atom>\]
+\[<Atom>              ::= \bot | \top | <Variable>\]
+\[<Variable>          ::= v <Indice>\]
+\[<Indice>            ::= i, i \in \mathbb{N}.\]
+
+Una formula de Horn es una conjunción de clausulas de Horn.
+Una clausula de Horn es una implicación cuya premisa es una conjuncion de 
+átomos (\bot,\top,v\(_{\text{i}}\)) y cuya conclusión es un átomo.
+
+\begin{verbatim}
+-- Atomos para clausulas de Horn
+data Hatom  =  Htop | Hbot | Hvar Indice deriving (Eq) 
+-- Clausula de Horn: Premisa=[atomo1,...,atomoN] -> Conclusion=Atomo
+data Fhorn  =   Himp [Hatom] Hatom                     
+ -- Conjuncion de formulas de Horn 
+              | Hand Fhorn Fhorn  deriving (Eq, Show)  
+\end{verbatim}
+\subsection{Atomos marcados}
+\label{sec:org5897fbc}
+Nos regresa True si todos los atomos de una premisa estan marcados. False en otro caso
+\begin{verbatim}
+atomosMarcados :: [Hatom] -> [Hatom] -> Bool
+atomosMarcados lm premisa = and [a `elem` lm | a <- premisa] 
+\end{verbatim}
+\subsection{Marca conclusiones}
+\label{sec:org11cfc9f}
+Agrega las conclusiones de una lista de clausulas de Horn a una lista de atomos marcados.
+\begin{verbatim}
+marcaConclusiones :: [Hatom] -> [Fhorn] -> [Hatom]
+marcaConclusiones lMarcados lcH = case lcH of
+ [] -> lMarcados
+ (Himp _ c):cHs -> marcaConclusiones (c:lMarcados) cHs
+ _  -> error $ "marcaConclusiones: no es una clausula de Horn: "++show (head lcH)
+\end{verbatim}
+\subsection{Clausulas marcables}
+\label{sec:org2cbac5d}
+Regresa la lista de clausulas de \(\phi\) que tienen una conclusión marcable.
+Def. \(f\) es una clausula con conclusión marcable si: \(f = p \rightarrow c\), los atomos de \(p\) están marcados, y \(c\) no está marcada.
+\begin{verbatim}
+clausulasHmarcables :: [Hatom] -> Fhorn -> [Fhorn]
+clausulasHmarcables lMarcados phi = case phi of
+ Himp premisa conclusion -> if (atomosMarcados lMarcados premisa) && 
+(conclusion `notElem` lMarcados)
+  then [phi]
+  else []
+ Hand f1 f2 -> clausulasHmarcables lMarcados f1 ++ clausulasHmarcables lMarcados f2
+\end{verbatim}
+\subsection{Marca formula de Horn}
+\label{sec:org97c3066}
+Mientras \(\phi\) tenga una clausula con conclusion marcable, marca las conclusiones de dichas clausulas.
+Def. \(f\) es una clausula con conclusión marcable si: \(f = p \rightarrow c\), los atomos de \(p\) están marcados, y \(c\) no está marcada.
+\begin{verbatim}
+marcaFormulaHorn :: [Hatom] -> Fhorn -> [Hatom]
+marcaFormulaHorn lMarcados phi = 
+    if cHornMarcables == []
+        then lMarcados
+        else marcaFormulaHorn lMarcadosNew phi
+    where
+    cHornMarcables  = clausulasHmarcables lMarcados phi
+    lMarcadosNew    = marcaConclusiones lMarcados cHornMarcables
+\end{verbatim}
+\subsection{Horn es satisfacible}
+\label{sec:org7ccc68e}
+\begin{verbatim}
+enSatHorn :: Fhorn -> Bool
+enSatHorn phi = if Hbot `elem` (marcaFormulaHorn [Htop] phi)
+                    then False
+                    else True
+\end{verbatim}
+\end{document}
