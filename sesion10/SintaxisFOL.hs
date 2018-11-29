@@ -103,12 +103,6 @@ varT t = case t of
   Var x -> [x]
   Fun _ [] -> []
   Fun n xs -> concat $ map varT xs
-{-
- Var id = [id]
- Fun s lt = case lt of
-       	    	 [] -> []
-		 x:xs  -> varT x ++ varT xs
--}
 
 
 -- Variables libres en una Formula
@@ -124,27 +118,85 @@ fv phi = case phi of
   Exi x a -> elimn x (fv a)
   Top -> []
   Bot -> []
-{-
- Top -> []
- Bot -> []
- Oand a b -> fv a ++ fv b
- Oor a b -> fv a ++ fv b
- Oneg a -> fv a
- Oimp a b -> fv a ++ fv b
- All a l -> elimn a (fv l)
- Exi a l -> elimn a (fv l)
- Equ (p,n) l -> varT l
- Pred (p,n) l -> varT l
--}
-
 
 
 -- Funcion que elimina el nombre de una variable en una lista de nombres de variables
 elimn :: Id -> [Id] -> [Id]
 elimn i li = [ v | v <- li, v /= i]
 
+-- Tipo substitución:
+type Subst = [(Id, Term)]
 
-freeTerm :: Term -> Id -> FOL -> Bool
-freeTerm tb i phi = case phi of
-  All x a -> if elem x (VarT tb) then False else freeTerm tb i phi
-  Exi x a -> if elem x (VarT tb) then False else freeTerm tb i phi
+-- Sustitución en un termino:
+apsubT :: Term -> Subst -> Term
+apsubT t [] = t
+
+{-
+apsubT (V x) [] = V x
+apsubT v@(V x) ((y,t):sub) = if x == y then t else apsubT v sub
+apsubT c@(F f []) _ = c
+apsubT (F f ts) sub = F f $ fmap (\t -> apsubT t sub) ts
+-}
+
+--Sustitución en una lista de términos
+apsusL :: [Term] -> Subst -> [Term]
+apsusL x y = [(apsubT p y) | p <- x]
+
+-- Funcion que nos dice si un termino es igual a un nombre de variable
+igu :: Term -> Id -> Bool
+igu (Var n1) n2 = if n1 == n2 then True else False
+
+
+-- Sustitución en una fórmula
+apsubF :: FOL -> Subst -> FOL
+apsubF f ys = case f of
+  (Pred id xs) -> Pred id (apsusL xs ys)
+
+--Funcion que nos dice si una variable se encuentra en las substituciones
+
+estaEn :: Id -> Subst -> Bool
+estaEn _ [] = False
+estaEn n ((var, term):subst) = if n == var then True else estaEn n subst
+
+--Estados de variables en el universo 'a'
+type Estado a = Id -> a
+
+--Interpretación para símbolos de función
+type IntF a = Id -> [a] -> a
+
+--Interpretación para símbolos de relación
+type IntR a = Id -> [a] -> Bool
+
+--Actualización un estado en una variable 
+actEst :: Estado a -> Id -> a -> Estado a
+actEst f n v = \y -> if y == n then v else f y
+
+--Interpretación de términos
+iTerm :: Estado a -> IntF a -> Term -> a
+iTerm f g (Var x) = f x
+iTerm f g (Fun (i,a) []) = g i []
+iTerm f g (Fun (i,a) y) = g i (iSol f g y)
+
+--Interpretación de lista de terminos
+iSol :: Estado a -> IntF a-> [Term] -> [a]
+iSol f g [] = []
+iSol f g ((Var x):res) = f x:iSol f g res
+iSol f g ((Fun (i,a) []):res) = f i:iSol f g res
+iSol f g ((Fun x y):res) = iTerm f g (Fun x y): iSol f g res 
+
+--INTERPRETACIÓN Ḿ = <M,I>
+--Universo: Enteros
+m :: [Int]
+m = [0..]
+
+est1 :: Estado Int
+est1 "x" = 1
+est1 "y" = 2
+est1 "z" = 3
+est1 x = 0
+
+iF1 :: IntF Int
+iF1 "g" = \[a,b,c] -> a+b+c
+iF1 "f" = \[a,b,c] -> (a+b)*c
+iF1 "h" = \[a,b] -> a*b
+iF1 f = \ _ -> 0
