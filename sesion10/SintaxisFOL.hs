@@ -6,12 +6,14 @@ where
 --------------------------------------------------------
 --
 type Id         = String        -- Identificadores para: variables, simbolos de predicado, simbolos de funcion
+type Cons       = (Id, String)
 type Sym        = (Id,Int)      -- Simbolos con aridad: (Identificador, Entero)
-type Alfabeto   = ([Sym],[Sym]) -- Alfabetos para FOL: (SimbolosDePredicado, SimbolosDeFuncion)
+type Alfabeto   = ([Sym],[Sym],[Cons]) -- Alfabetos para FOL: (SimbolosDePredicado, SimbolosDeFuncion)
 --
 -- Terminos:
 data Term =   Var Id            -- una variable 
             | Fun Sym [Term]    -- un simbolo de funcion aplicado a una lista de terminos
+	    | Cons              -- constantes
             deriving (Eq,Show,Ord,Read)
 --
 -- Formulas de FOL con igualdad, FOL^=:
@@ -19,7 +21,6 @@ data FOL =    Bot | Top | Oimp FOL FOL | Oand FOL FOL | Oor FOL FOL | Oneg FOL  
             | Pred Sym [Term]   -- Predicado:           simbolo de predicado aplicado a una lista de terminos
             | All Id FOL        -- Formula universal:   \forall x : phi 
             | Exi Id FOL        -- Formula existencial: \exists x : phi
-            | Equ Sym [Term]    -- Igualdad:            simbolo de predicado aplicado a una lista de terminos
             deriving (Eq,Show,Ord,Read)
 --
 --
@@ -59,12 +60,6 @@ showFOL phi = case phi of
     --
     All x phi       -> "(ForAll "++x++ ": " ++ (show phi)++")"   -- XXX
     Exi x phi       -> "(Exists "++x++ ": " ++ (show phi)++")"   -- XXX
-    Equ (p,n) lt    -> if (p,n) /= ("=",2) 
-                            then error $ "showFOL: simbolo de igualdad incorrecto: "++ show (p,n)
-                            else if length lt /= n 
-                                    then error $ "showTerm: el numero de parametros de "++p
-                                        ++ " es distinto de la aridad, "++show n
-                                    else p++"("++ showLterms lt ++")"
     --_               -> error $ "showFOL: no definida en este caso, phi="++show phi
 --
 --
@@ -72,7 +67,7 @@ showFOL phi = case phi of
 sigma0 :: Alfabeto
 sigma0 = -- Alfabeto visto en clase
             ([("H",1),("M",1),("A",2)],  -- simbolos de predicado. esHombre, esMujer, amigoDe
-             [("f",1),("g",2)]           -- simbolos de funcion
+             [("f",1),("g",2)] , []          -- simbolos de funcion
             )
 
 -- Ejemplos
@@ -109,7 +104,6 @@ varT t = case t of
 fv :: FOL -> [Id]
 fv phi = case phi of
   Pred _ lt -> concat $ map varT lt
-  Equ (p,n) lt ->  concat $ map varT lt
   Oimp a b -> fv a ++ fv b
   Oand a b -> fv a ++ fv b
   Oor a b -> fv a ++ fv b
